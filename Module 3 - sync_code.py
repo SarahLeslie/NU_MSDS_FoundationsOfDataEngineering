@@ -28,21 +28,22 @@ test_data
 sys.getrecursionlimit()
 ## sys.setrecursionlimit(5000) DANGEROUS!!
 
-target = 998
+for i in range(len(test_data)):
+    print("Factorial of ", test_data[i])
 
-start_time = time.time_ns()
-#fact_rec(target)
-result_rec = fact_rec(target)
-end_time = time.time_ns()
-print((end_time - start_time)/1000000)
+    start_time = time.time_ns()
+    fact_rec(test_data[i])
+    #result_rec = fact_rec(test_data[i])
+    end_time = time.time_ns()
+    print("Recursive Factorial: ", ((end_time - start_time)/1000000), " ms")
 
-start_time = time.time_ns()
-#fact_iter(target)
-result_iter = fact_iter(target)
-end_time = time.time_ns()
-print((end_time - start_time)/1000000)
+    start_time = time.time_ns()
+    fact_iter(test_data[i])
+    #result_iter = fact_iter(test_data[i])
+    end_time = time.time_ns()
+    print("For-Loop Factorial: ", ((end_time - start_time)/1000000), " ms")
 
-print (result_rec == result_iter)
+#print (result_rec == result_iter)
 
 # In this Extra Credit Assignment, 
 # please modify the recursive factorial function 
