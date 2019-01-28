@@ -1,5 +1,7 @@
 #import inspect
 import sys
+import random 
+import numpy as np
 import time
 
 def fact_rec(x):
@@ -16,6 +18,12 @@ def fact_iter(x):
 
 fact_rec(5)
 fact_iter(5)
+
+# Generates test data
+# Chose integers from 100-900 instead of 100-500 to show greater time differences
+np.random.seed(3)
+test_data = np.sort(np.random.randint(100,900,10))
+test_data
 
 sys.getrecursionlimit()
 ## sys.setrecursionlimit(5000) DANGEROUS!!
