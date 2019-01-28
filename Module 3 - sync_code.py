@@ -1,69 +1,43 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jan 23 07:57:21 2019
-
-@author: dev2
-"""
-
-import inspect
+#import inspect
 import sys
+import time
 
-def fact(x):
-    
-    ## Added by Lance ##
-    print("Function fact has been called with parameter x: {0} at memory location: {1}".format(x, inspect.currentframe()))
-    print(sys._getframe(0))
-    ## Added by Lance ##
-    
-    if x == 1:
-        
-        ## Added by Lance ##
-        print("    Found 1!  Returning 1")
-        ## Added by Lance ##
-        
-        return 1
-    else:
-        
-        ## Added by Lance ##
-        #print("  Now we will return {0} * fact({1})".format(x, x-1))
-        print("  Have not found 1.  Calculating res...")
-        res = fact(x-1) * x
-        print("  Now we will return {0} * fact({1}) = {2} from the location: {3}".format(x, x-1, res, sys._getframe(0)))
-        ## Added by Lance ##
-        
-        return res
-
-print(fact(5))
-
-
-def fact(x):
+def fact_rec(x):
   if x == 1:
     return 1
   else:
-    return x * fact(x-1)
+    return x * fact_rec(x-1)
 
 def fact_iter(x):
     ans = 1
     for i in range(1,x+1): 
         ans = ans * i 
     return ans
-        
-import time
-import sys
 
-target = 2950
+fact_rec(5)
+fact_iter(5)
 
 sys.getrecursionlimit()
 ## sys.setrecursionlimit(5000) DANGEROUS!!
 
-start_time = time.time()
-fact(target)
-end_time = time.time()
-print(end_time - start_time)
+target = 998
 
-start_time = time.time()
-fact_iter(target)
-end_time = time.time()
-print(end_time - start_time)
+start_time = time.time_ns()
+#fact_rec(target)
+result_rec = fact_rec(target)
+end_time = time.time_ns()
+print((end_time - start_time)/1000000)
 
+start_time = time.time_ns()
+#fact_iter(target)
+result_iter = fact_iter(target)
+end_time = time.time_ns()
+print((end_time - start_time)/1000000)
 
+print (result_rec == result_iter)
+
+# In this Extra Credit Assignment, 
+# please modify the recursive factorial function 
+# to allow numbers greater than this limit set by python 
+# without modifying the system recursion limit in python.  
+# By this I mean you should not change sys.setrecursionlimit() .  
