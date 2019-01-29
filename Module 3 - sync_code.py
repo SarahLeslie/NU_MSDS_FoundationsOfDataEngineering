@@ -2,6 +2,7 @@
 import sys
 import random 
 import time
+import pandas as pd
 
 # Defines the two main factorial functions
 def fact_rec(x):
@@ -93,6 +94,26 @@ recur_fact_results_vperfCounter == iter_fact_results_vperfCounter
 recur_time_results_vperfCounter
 iter_time_results_vperfCounter
 
+# Confirming all factorial results match
+recur_fact_results_vtime == recur_fact_results_vthread == recur_fact_results_vmonotonic == recur_fact_results_vprocess == recur_fact_results_vperfCounter
+
+
+# Organizes all results into a single dataframe
+results_dict = {'Input_Number':test_data
+                ,'Factorial_results':iter_fact_results_vtime
+                ,'ForLoop_TimeFunction_Time':iter_time_results_vtime
+                ,'Recursion_TimeFunction_Time':recur_time_results_vtime
+                ,'ForLoop_ThreadFunction_Time':iter_time_results_vthread
+                ,'Recursion_ThreadFunction_Time':recur_time_results_vthread
+                ,'ForLoop_MonotonicFunction_Time':iter_time_results_vmonotonic
+                ,'Recursion_MonotonicFunction_Time':recur_time_results_vmonotonic
+                ,'ForLoop_ProcessFunction_Time':iter_time_results_vprocess
+                ,'Recursion_ProcessFunction_Time':recur_time_results_vprocess
+                ,'ForLoop_PerfCounterFunction_Time':iter_time_results_vperfCounter
+                ,'Recursion_PerfCounterFunction_Time':recur_time_results_vperfCounter}
+
+results = pd.DataFrame(results_dict)
+results
 
 # In this Extra Credit Assignment, 
 # please modify the recursive factorial function 
