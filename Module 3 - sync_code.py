@@ -26,7 +26,7 @@ fact_iter(5)
 # Generates test data
 # Chose integers from 100-950 instead of 100-500 to (TRY to) show greater time differences
 random.seed(5)
-test_data = [random.randint(100, 950) for _ in range(10)]
+test_data = [random.randint(100, 2900) for _ in range(10)]
 test_data.sort()
 test_data
 
@@ -160,8 +160,16 @@ my_custom_plot("ForLoop_PerfCounterFunction_Time","Recursion_PerfCounterFunction
 my_custom_plot("ForLoop_AVERAGE_Time","Recursion_AVERAGE_Time",'Averaged')
 
 
-# In this Extra Credit Assignment, 
-# please modify the recursive factorial function 
-# to allow numbers greater than this limit set by python 
-# without modifying the system recursion limit in python.  
-# By this I mean you should not change sys.setrecursionlimit() .  
+# Extra Credit:
+# modifies the recursive factorial function to allow numbers greater python's existing recursion limit
+
+def fact_semi_rec(u,l=1):
+    if u==l:
+        return u
+    else:
+        m = (u + l)//2
+        first_half = fact_semi_rec(u,m+1)
+        second_half = fact_semi_rec(m,l)
+        return first_half * second_half
+
+fact_semi_rec(sys.getrecursionlimit()+100)
