@@ -100,7 +100,7 @@ recur_fact_results_vtime == recur_fact_results_vthread == recur_fact_results_vmo
 
 # Organizes all results into a single dataframe
 results_dict = {'Input_Number':test_data
-                ,'Factorial_results':iter_fact_results_vtime
+                ,'Factorial_Results':iter_fact_results_vtime
                 ,'ForLoop_TimeFunction_Time':iter_time_results_vtime
                 ,'Recursion_TimeFunction_Time':recur_time_results_vtime
                 ,'ForLoop_ThreadFunction_Time':iter_time_results_vthread
@@ -111,9 +111,26 @@ results_dict = {'Input_Number':test_data
                 ,'Recursion_ProcessFunction_Time':recur_time_results_vprocess
                 ,'ForLoop_PerfCounterFunction_Time':iter_time_results_vperfCounter
                 ,'Recursion_PerfCounterFunction_Time':recur_time_results_vperfCounter}
-
 results = pd.DataFrame(results_dict)
-results
+
+# Adds an average of the time results across all time function options for each factorial method
+results['ForLoop_AVERAGE_Time'] = results[['ForLoop_TimeFunction_Time'
+                                            ,'ForLoop_ThreadFunction_Time'
+                                            ,'ForLoop_MonotonicFunction_Time'
+                                            ,'ForLoop_ProcessFunction_Time'
+                                            ,'ForLoop_PerfCounterFunction_Time'
+                                            ]].mean(axis=1)
+
+results['Recursion_AVERAGE_Time'] = results[['Recursion_TimeFunction_Time'
+                                            ,'Recursion_ThreadFunction_Time'
+                                            ,'Recursion_MonotonicFunction_Time'
+                                            ,'Recursion_ProcessFunction_Time'
+                                            ,'Recursion_PerfCounterFunction_Time'
+                                            ]].mean(axis=1)
+
+# Basic summary of the results
+results.info()
+results.describe()
 
 # In this Extra Credit Assignment, 
 # please modify the recursive factorial function 
