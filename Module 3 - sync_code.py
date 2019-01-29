@@ -95,9 +95,9 @@ def test_loop(f):
     fact_results = []
     time_results = []
     for test_int in test_data:
-        start = time.process_time()
+        start = time.perf_counter()
         fact = f(test_int)
-        end = time.process_time()
+        end = time.perf_counter()
         fact_results.append(fact)
         time_results.append(end - start)
     return fact_results, time_results
