@@ -3,6 +3,8 @@ import sys
 import random 
 import time
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Defines the two main factorial functions
 def fact_rec(x):
@@ -22,7 +24,7 @@ fact_rec(5)
 fact_iter(5)
 
 # Generates test data
-# Chose integers from 100-950 instead of 100-500 to show greater time differences
+# Chose integers from 100-950 instead of 100-500 to (TRY to) show greater time differences
 random.seed(5)
 test_data = [random.randint(100, 950) for _ in range(10)]
 test_data.sort()
@@ -79,7 +81,7 @@ iter_time_results_vmonotonic
 recur_fact_results_vprocess, recur_time_results_vprocess = test_loop(fact_rec, time.process_time)
 iter_fact_results_vprocess, iter_time_results_vprocess = test_loop(fact_iter, time.process_time)
 
-# Examines Version 3 results
+# Examines Version 4 results
 recur_fact_results_vprocess == iter_fact_results_vprocess
 recur_time_results_vprocess
 iter_time_results_vprocess
@@ -89,14 +91,14 @@ iter_time_results_vprocess
 recur_fact_results_vperfCounter, recur_time_results_vperfCounter = test_loop(fact_rec, time.perf_counter)
 iter_fact_results_vperfCounter, iter_time_results_vperfCounter = test_loop(fact_iter, time.perf_counter)
 
-# Examines Version 3 results
+# Examines Version 5 results
 recur_fact_results_vperfCounter == iter_fact_results_vperfCounter
 recur_time_results_vperfCounter
 iter_time_results_vperfCounter
 
-# Confirming all factorial results match
-recur_fact_results_vtime == recur_fact_results_vthread == recur_fact_results_vmonotonic == recur_fact_results_vprocess == recur_fact_results_vperfCounter
 
+# Confirms all factorial results match
+recur_fact_results_vtime == recur_fact_results_vthread == recur_fact_results_vmonotonic == recur_fact_results_vprocess == recur_fact_results_vperfCounter
 
 # Organizes all results into a single dataframe
 results_dict = {'Input_Number':test_data
@@ -113,7 +115,7 @@ results_dict = {'Input_Number':test_data
                 ,'Recursion_PerfCounterFunction_Time':recur_time_results_vperfCounter}
 results = pd.DataFrame(results_dict)
 
-# Adds an average of the time results across all time function options for each factorial method
+# Adds an average of the time results across all time function options for each factorial method (curiosity)
 results['ForLoop_AVERAGE_Time'] = results[['ForLoop_TimeFunction_Time'
                                             ,'ForLoop_ThreadFunction_Time'
                                             ,'ForLoop_MonotonicFunction_Time'
@@ -131,6 +133,32 @@ results['Recursion_AVERAGE_Time'] = results[['Recursion_TimeFunction_Time'
 # Basic summary of the results
 results.info()
 results.describe()
+
+# Graphs the (various) results
+def my_custom_plot(ycol1,ycol2,time_func):
+    sns.set()
+    ax1 = sns.scatterplot(x="Input_Number", y=ycol1
+                            ,data=results
+                            ,color='b', marker='o', s=50
+                            ,label = ' '.join(['for-loop', time_func, 'results']))
+    sns.scatterplot(x="Input_Number", y=ycol2
+                    ,data=results, ax=ax1
+                    ,color='r', marker='x', s=55
+                    ,label = ' '.join(['recursion', time_func, 'results']))
+    ax1.set_xlabel('Input_Number')
+    ax1.set_ylabel('Time in ms')
+    ax1.set_title('Run Times for Factorial Calculation Functions')
+    #ax1.legend(loc='upper left',fontsize='x-small')
+    ax1.legend(bbox_to_anchor=(.45, .85) ,fontsize='x-small')
+    plt.show()
+
+my_custom_plot("ForLoop_TimeFunction_Time","Recursion_TimeFunction_Time",'.time()')
+my_custom_plot("ForLoop_ThreadFunction_Time","Recursion_ThreadFunction_Time",'.thread_time()')
+my_custom_plot("ForLoop_MonotonicFunction_Time","Recursion_MonotonicFunction_Time",'.monotonic()')
+my_custom_plot("ForLoop_ProcessFunction_Time","Recursion_ProcessFunction_Time",'.process_time()')
+my_custom_plot("ForLoop_PerfCounterFunction_Time","Recursion_PerfCounterFunction_Time",'.perf_counter()')
+my_custom_plot("ForLoop_AVERAGE_Time","Recursion_AVERAGE_Time",'Averaged')
+
 
 # In this Extra Credit Assignment, 
 # please modify the recursive factorial function 
