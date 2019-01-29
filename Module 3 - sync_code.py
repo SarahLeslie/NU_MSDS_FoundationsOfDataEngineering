@@ -27,6 +27,7 @@ fact_iter(5)
 # Chose integers from 100-950 instead of 100-500 to (TRY to) show greater time differences
 random.seed(5)
 test_data = [random.randint(100, 2900) for _ in range(10)]
+# sorted the data to make it easier to spot check the eventual time test results
 test_data.sort()
 test_data
 
@@ -35,13 +36,13 @@ sys.getrecursionlimit()
 ## sys.setrecursionlimit(5000) DANGEROUS!!
 
 # Creates time test function applicable with various different time capture functions
-def test_loop(f,t):
+def test_loop(fact_function,time_function):
     fact_results = []
     time_results = []
     for test_int in test_data:
-        start = t()
-        fact = f(test_int)
-        end = t()
+        start = time_function()
+        fact = fact_function(test_int)
+        end = time_function()
         fact_results.append(fact)
         time_results.append((end - start)*1000)
     return fact_results, time_results
@@ -172,4 +173,4 @@ def fact_semi_rec(u,l=1):
         second_half = fact_semi_rec(m,l)
         return first_half * second_half
 
-fact_semi_rec(sys.getrecursionlimit()+100)
+fact_semi_rec(sys.getrecursionlimit()**2)
