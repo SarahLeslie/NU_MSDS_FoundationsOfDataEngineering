@@ -1,8 +1,14 @@
-# Imports required packages
+# IMPORTS REQUIRED PACKAGES
+import random
+import string
+import pandas as pd
+
 import sys
 import Person_pb2
 import binascii
 
+
+# DEFINES VARIOUS SORT FUNCTIONS
 # Defines quicksort function
 def quicksort(array):
   
@@ -20,6 +26,37 @@ def quicksort(array):
     # recursive call of quicksort on the less-than and greater-than arrays (nesting the pivot in between)
     return quicksort(less) + [pivot] + quicksort(greater)
 
+
+# GENERATES TEST DATA
+# Instantiates (currently sorted) list of state abbrebiations
+states = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", 
+          "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", 
+          "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", 
+          "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
+          "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
+
+# Randomly shuffles states list
+random.seed(2)
+random.shuffle(states)
+
+# Generates 50 randomly generated 10-character string as 'first names' and separately, 'last names'
+random.seed(3)
+first_names = ["".join(random.choices(string.ascii_lowercase, k=10)) for _ in range(50)]
+random.seed(4)
+last_names = ["".join(random.choices(string.ascii_lowercase, k=10)) for _ in range(50)]
+
+# Checks to see there are no dupes with the names
+len(first_names) == len(set(first_names))
+len(last_names) == len(set(last_names))
+# confirmed!
+
+# Combines lists into dictionary and then converts to pandas dataframe
+persons_dict = {'first_name':first_names, 'last_name':last_names, 'address':states}
+persons_df = pd.DataFrame(persons_dict)
+persons_df
+
+
+# LEFTOVER FROM PROF STARTER CODE
 # Creates test person object with username, fav number, and interest attributes
 person_obj = Person_pb2.Person()
 person_obj.user_name = 'Martin'
