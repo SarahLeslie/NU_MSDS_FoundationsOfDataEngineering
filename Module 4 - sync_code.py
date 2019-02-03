@@ -4,7 +4,7 @@ import string
 import pandas as pd
 
 import sys
-import Person_pb2
+#import Person_pb2
 import binascii
 
 
@@ -25,6 +25,74 @@ def quicksort(array):
     greater = [i for i in array[1:] if i > pivot]
     # recursive call of quicksort on the less-than and greater-than arrays (nesting the pivot in between)
     return quicksort(less) + [pivot] + quicksort(greater)
+
+# Uses version of selection sort function from Week 2
+def selectionSort(arr):
+  for i in range(arr): 
+    min_index = i 
+    min_value = arr[i]
+    # cycles through remaining array to find next min value
+    for j in range(i+1, len(arr)): 
+        if arr[j] < min_value: 
+            min_index = j 
+            min_value = arr[j]
+    # Swap the first element and the minimum element within the remaining unsorted portion of the array
+    arr[i], arr[min_index] = arr[min_index], arr[i] 
+  return arr
+
+# Defines Bubble sort function (from geeksforgeeks.org)
+def bubbleSort(arr): 
+  n = len(arr) 
+  # Traverse through all array elements 
+  for i in range(n): 
+      # Last i elements are already in place 
+      for j in range(0, n-i-1): 
+          # traverse the array from 0 to n-i-1 
+          # Swap if the element found is greater 
+          # than the next element 
+          if arr[j] > arr[j+1] : 
+              arr[j], arr[j+1] = arr[j+1], arr[j] 
+  return arr
+
+# Defines Insertion sort function (from geeksforgeeks.org)
+def insertionSort(arr): 
+  # Traverse through 1 to len(arr) 
+  for i in range(1, len(arr)): 
+      key = arr[i] 
+      # Move elements of arr[0..i-1], that are 
+      # greater than key, to one position ahead 
+      # of their current position 
+      j = i-1
+      while j >=0 and key < arr[j] : 
+              arr[j+1] = arr[j] 
+              j -= 1
+      arr[j+1] = key 
+  return arr
+
+# Defines Strand sort function (drafted myself from online pseudo-code)
+def strandSort(arr):
+  result_arr = []
+  while len(arr)>0:
+    #sublist = []
+    sublist = [arr.pop(0)]
+    for remaining_index in range(len(arr)):
+      if arr[remaining_index] > sublist[-1]:
+        sublist.append(arr.pop(remaining_index))
+    result_arr = sublist + result_arr
+  return result_arr
+
+# Defines Gnome sort function (from geeksforgeeks.org with slight tweaks)
+def gnomeSort(arr): 
+  index = 1
+  while index < len(arr): 
+    if index == 0: 
+        index = index + 1
+    if arr[index] >= arr[index - 1]: 
+        index = index + 1
+    else: 
+        arr[index], arr[index-1] = arr[index-1], arr[index] 
+        index = index - 1
+  return arr 
 
 
 # GENERATES TEST DATA
@@ -56,19 +124,17 @@ persons_df = pd.DataFrame(persons_dict)
 persons_df
 
 
-# LEFTOVER FROM PROF STARTER CODE
-# Creates test person object with username, fav number, and interest attributes
-person_obj = Person_pb2.Person()
-person_obj.user_name = 'Martin'
-person_obj.favorite_number = 1337
-person_obj.interests.extend(['daydreaming','hacking'])
-
-# Not 100% sure yet what this does but i'll figure it out!
-binascii.hexlify(person_obj.SerializeToString())
-person_obj.SerializeToString()
+# TESTS 1. QUICK SORT, 2. BUBBLE SORT, 3. GNOME SORT, 4. INSERTION SORT, 5. SELECTION SORT, AND 6. STRAND SORT
 
 
 
+# # # LEFTOVER FROM PROF STARTER CODE
+# # Creates test person object with username, fav number, and interest attributes
+# person_obj = Person_pb2.Person()
+# person_obj.user_name = 'Martin'
+# person_obj.favorite_number = 1337
+# person_obj.interests.extend(['daydreaming','hacking'])
 
-
-
+# # Not 100% sure yet what this does but i'll figure it out!
+# binascii.hexlify(person_obj.SerializeToString())
+# person_obj.SerializeToString()
