@@ -2,10 +2,9 @@
 import random
 import string
 import pandas as pd
-
-import sys
+#import sys
 #import Person_pb2
-import binascii
+#import binascii
 
 
 # DEFINES VARIOUS SORT FUNCTIONS
@@ -28,7 +27,7 @@ def quicksort(array):
 
 # Uses version of selection sort function from Week 2
 def selectionSort(arr):
-  for i in range(arr): 
+  for i in range(len(arr)): 
     min_index = i 
     min_value = arr[i]
     # cycles through remaining array to find next min value
@@ -70,15 +69,32 @@ def insertionSort(arr):
   return arr
 
 # Defines Strand sort function (drafted myself from online pseudo-code)
+# Defines merge of pre-sorted lists first
+def my_merge(l1, l2):
+  result = []
+  while (l1 and l2):
+    if (l1[0] <= l2[0]):
+        result.append(l1.pop(0))
+    else:
+        result.append(l2.pop(0))
+  # Add the remaining of the lists
+  result.extend(l1 if l1 else l2)
+  return result
+
 def strandSort(arr):
+  if len(arr) < 2:
+    return arr 
   result_arr = []
   while len(arr)>0:
+    i = 0
     #sublist = []
     sublist = [arr.pop(0)]
-    for remaining_index in range(len(arr)):
-      if arr[remaining_index] > sublist[-1]:
-        sublist.append(arr.pop(remaining_index))
-    result_arr = sublist + result_arr
+    while i < len(arr):
+      if arr[i] > sublist[-1]:
+        sublist.append(arr.pop(i))
+      else:
+        i = i + 1
+    result_arr = my_merge(sublist,result_arr)
   return result_arr
 
 # Defines Gnome sort function (from geeksforgeeks.org with slight tweaks)
@@ -93,6 +109,25 @@ def gnomeSort(arr):
         arr[index], arr[index-1] = arr[index-1], arr[index] 
         index = index - 1
   return arr 
+
+# Functional testing of quicksort, bubblesort, gnomesort, insertionsort, selectionsort, and strandsort functions
+test_list = [1,10,6,5,2,9,7,4,3,8]
+quicksort(test_list)
+
+test_list = [1,10,6,5,2,9,7,4,3,8]
+bubbleSort(test_list)
+
+test_list = [1,10,6,5,2,9,7,4,3,8]
+gnomeSort(test_list)
+
+test_list = [1,10,6,5,2,9,7,4,3,8]
+insertionSort(test_list)
+
+test_list = [1,10,6,5,2,9,7,4,3,8]
+selectionSort(test_list)
+
+test_list = [1,10,6,5,2,9,7,4,3,8]
+strandSort(test_list)
 
 
 # GENERATES TEST DATA
@@ -125,8 +160,6 @@ persons_df
 
 
 # TESTS 1. QUICK SORT, 2. BUBBLE SORT, 3. GNOME SORT, 4. INSERTION SORT, 5. SELECTION SORT, AND 6. STRAND SORT
-
-
 
 # # # LEFTOVER FROM PROF STARTER CODE
 # # Creates test person object with username, fav number, and interest attributes
