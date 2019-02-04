@@ -9,7 +9,7 @@ import seaborn as sns
 
 # DEFINES VARIOUS SORT FUNCTIONS
 # Defines quicksort function
-def quicksort(list_of_dicts, key):  
+def quickSort(list_of_dicts, key):  
   # base case, arrays with 0 or 1 element are already "sorted"
   if len(list_of_dicts) < 2:
     return list_of_dicts
@@ -21,7 +21,7 @@ def quicksort(list_of_dicts, key):
     # creates sub-array of all the elements greater than the identified pivot
     greater = [i for i in list_of_dicts[1:] if i[key] > pivot_element[key]]
     # recursive call of quicksort on the less-than and greater-than arrays (nesting the pivot in between)
-    return quicksort(less,key) + [pivot_element] + quicksort(greater,key)
+    return quickSort(less,key) + [pivot_element] + quickSort(greater,key)
 
 # Uses version of selection sort function from Week 2
 def selectionSort(list_of_dicts, key):
@@ -111,7 +111,7 @@ def gnomeSort(list_of_dicts,key):
 test_list_of_dicts = [{'first_name':'Sarah', 'last_name':'Martin', 'city':'NYC'}
                        , {'first_name':'Rachel', 'last_name':'Martin', 'city':'Berlin'}
                        , {'first_name':'David', 'last_name':'Martin', 'city':'Stamford'}]
-quicksort(test_list_of_dicts,'city')
+quickSort(test_list_of_dicts,'city')
 
 test_list_of_dicts = [{'first_name':'Sarah', 'last_name':'Martin', 'city':'NYC'}
                        , {'first_name':'Rachel', 'last_name':'Martin', 'city':'Berlin'}
@@ -168,45 +168,43 @@ persons_list = pd.DataFrame(persons_dict).to_dict('records')
 
 
 # TESTS 1. QUICK SORT, 2. BUBBLE SORT, 3. GNOME SORT, 4. INSERTION SORT, 5. SELECTION SORT, AND 6. STRAND SORT
-# due to in-place sorting, I'll create copies of the test data for each sort function
-persons_list_quick = persons_list
-persons_list_bubble = persons_list
-persons_list_gnome = persons_list
-persons_list_insertion = persons_list
-persons_list_selection = persons_list
-persons_list_strand = persons_list
+# due to in-place sorting or elimination of the original data,
+# I'll create copies of the test data for each sort function for 2 sorts
+persons_list_quick1 = persons_list
+persons_list_bubble1 = persons_list
+persons_list_gnome1 = persons_list
+persons_list_insertion1 = persons_list
+persons_list_selection1 = persons_list
+persons_list_strand1 = persons_list
+
+persons_list_quick2 = persons_list
+persons_list_bubble2 = persons_list
+persons_list_gnome2 = persons_list
+persons_list_insertion2 = persons_list
+persons_list_selection2 = persons_list
+persons_list_strand2 = persons_list
 
 # instantiates list to capture time test results
 time_results = []
 
-start = time.perf_counter()
-quicksort(persons_list_quick,'last_name')
-end = time.perf_counter()
-time_results.append({'Method':'Quick Sort', 'Time':(end - start)*1000})
+def time_testing(sort_method,method_label,data1,data2):
+  start1 = time.perf_counter()
+  sort_method(data1,'last_name')
+  end1 = time.perf_counter()
+  start2 = time.perf_counter()
+  sort_method(data2,'address')
+  end2 = time.perf_counter()
+  first_sort_time = (end1 - start1)*1000
+  second_sort_time = (end2 - start2)*1000
+  time_results.append({'Method':method_label
+                      ,'One Sort Time':(first_sort_time+second_sort_time)/2
+                      ,'Two Sort Time':first_sort_time+second_sort_time})
 
-start = time.perf_counter()
-bubbleSort(persons_list_bubble,'last_name')
-end = time.perf_counter()
-time_results.append({'Method':'Bubble Sort', 'Time':(end - start)*1000})
-
-start = time.perf_counter()
-gnomeSort(persons_list_gnome,'last_name')
-end = time.perf_counter()
-time_results.append({'Method':'Gnome Sort', 'Time':(end - start)*1000})
-
-start = time.perf_counter()
-insertionSort(persons_list_insertion,'last_name')
-end = time.perf_counter()
-time_results.append({'Method':'Insertion Sort', 'Time':(end - start)*1000})
-
-start = time.perf_counter()
-selectionSort(persons_list_selection,'last_name')
-end = time.perf_counter()
-time_results.append({'Method':'Selection Sort', 'Time':(end - start)*1000})
-
-start = time.perf_counter()
-strandSort(persons_list_strand,'last_name')
-end = time.perf_counter()
-time_results.append({'Method':'Strand Sort', 'Time':(end - start)*1000})
+time_testing(quickSort,'Quick Sort',persons_list_quick1,persons_list_quick2)
+time_testing(bubbleSort,'Bubble Sort',persons_list_bubble1,persons_list_bubble2)
+time_testing(gnomeSort,'Gnome Sort',persons_list_gnome1,persons_list_gnome2)
+time_testing(insertionSort,'Insertion Sort',persons_list_insertion1,persons_list_insertion2)
+time_testing(selectionSort,'Selection Sort',persons_list_selection1,persons_list_selection2)
+time_testing(strandSort,'Strand Sort',persons_list_strand1,persons_list_strand2)
 
 results_df = pd.DataFrame(time_results)
