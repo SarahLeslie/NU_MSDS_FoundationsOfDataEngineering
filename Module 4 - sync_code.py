@@ -197,9 +197,14 @@ def time_testing(sort_method,method_label,data1,data2):
   first_sort_time = (end1 - start1)*1000
   second_sort_time = (end2 - start2)*1000
   time_results.append({'Method':method_label
-                      ,'Last Name Sort Time':first_sort_time
-                      ,'Address Sort Time':second_sort_time
-                      ,'Average Sort Time':(first_sort_time + second_sort_time)/2})
+                      ,'Sort Key':'Last Name'
+                      ,'Sort Time':first_sort_time})
+  time_results.append({'Method':method_label
+                      ,'Sort Key':'Address'
+                      ,'Sort Time':second_sort_time})
+  time_results.append({'Method':method_label
+                      ,'Sort Key':'Average'
+                      ,'Sort Time':(first_sort_time + second_sort_time)/2})
   return by_last_name, by_address
 
 time_testing(quickSort,'Quick Sort',persons_list_quick1,persons_list_quick2)
@@ -210,3 +215,12 @@ time_testing(selectionSort,'Selection Sort',persons_list_selection1,persons_list
 time_testing(strandSort,'Strand Sort',persons_list_strand1,persons_list_strand2)
 
 results_df = pd.DataFrame(time_results)
+
+sns.catplot(x="Sort Key", y="Sort Time"
+            , hue = "Method", data=results_df)
+plt.show()
+
+sns.catplot(x="Sort Key", y="Sort Time"
+            , hue = "Method", jitter = False
+            , data=results_df.loc[~results_df['Method'].isin(['Gnome Sort','Bubble Sort'])])
+plt.show()
