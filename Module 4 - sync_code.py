@@ -170,35 +170,37 @@ persons_list = pd.DataFrame(persons_dict).to_dict('records')
 # TESTS 1. QUICK SORT, 2. BUBBLE SORT, 3. GNOME SORT, 4. INSERTION SORT, 5. SELECTION SORT, AND 6. STRAND SORT
 # due to in-place sorting or elimination of the original data,
 # I'll create copies of the test data for each sort function for 2 sorts
-persons_list_quick1 = persons_list
-persons_list_bubble1 = persons_list
-persons_list_gnome1 = persons_list
-persons_list_insertion1 = persons_list
-persons_list_selection1 = persons_list
-persons_list_strand1 = persons_list
+persons_list_quick1 = persons_list.copy()
+persons_list_bubble1 = persons_list.copy()
+persons_list_gnome1 = persons_list.copy()
+persons_list_insertion1 = persons_list.copy()
+persons_list_selection1 = persons_list.copy()
+persons_list_strand1 = persons_list.copy()
 
-persons_list_quick2 = persons_list
-persons_list_bubble2 = persons_list
-persons_list_gnome2 = persons_list
-persons_list_insertion2 = persons_list
-persons_list_selection2 = persons_list
-persons_list_strand2 = persons_list
+persons_list_quick2 = persons_list.copy()
+persons_list_bubble2 = persons_list.copy()
+persons_list_gnome2 = persons_list.copy()
+persons_list_insertion2 = persons_list.copy()
+persons_list_selection2 = persons_list.copy()
+persons_list_strand2 = persons_list.copy()
 
 # instantiates list to capture time test results
 time_results = []
 
 def time_testing(sort_method,method_label,data1,data2):
   start1 = time.perf_counter()
-  sort_method(data1,'last_name')
+  by_last_name = sort_method(data1,'last_name')
   end1 = time.perf_counter()
   start2 = time.perf_counter()
-  sort_method(data2,'address')
+  by_address = sort_method(data2,'address')
   end2 = time.perf_counter()
   first_sort_time = (end1 - start1)*1000
   second_sort_time = (end2 - start2)*1000
   time_results.append({'Method':method_label
-                      ,'One Sort Time':(first_sort_time+second_sort_time)/2
-                      ,'Two Sort Time':first_sort_time+second_sort_time})
+                      ,'Last Name Sort Time':first_sort_time
+                      ,'Address Sort Time':second_sort_time
+                      ,'Average Sort Time':(first_sort_time + second_sort_time)/2})
+  return by_last_name, by_address
 
 time_testing(quickSort,'Quick Sort',persons_list_quick1,persons_list_quick2)
 time_testing(bubbleSort,'Bubble Sort',persons_list_bubble1,persons_list_bubble2)
