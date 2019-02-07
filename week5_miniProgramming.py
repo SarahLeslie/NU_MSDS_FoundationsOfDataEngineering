@@ -14,7 +14,6 @@ unsorted_list = ["".join(random.choices(string.ascii_lowercase, k=10)) for _ in 
 
 # Instantiates a set of the same strings
 unsorted_set = set(unsorted_list)
-
 # Checks to see there are no dupes within the list/set
 len(unsorted_list) == len(unsorted_set)
 # confirmed!
@@ -48,7 +47,16 @@ def strandSort(a_list):
   return result_list
 
 # Instantiates a sorted version of the same list of strings
-sorted_list = strandSort(unsorted_list)
+temp_unsorted_list = unsorted_list.copy
+sorted_list = strandSort(temp_unsorted_list)
+
+# Stores 10kth, 30kth, 50kth, 70kth, 90kth, and 100kth strings from each set of test data (unsorted list, set, sorted list)
+search_test_names = {}
+search_test_names['unsorted_list'] = [unsorted_list[9999], unsorted_list[29999], unsorted_list[49999]
+                                    ,unsorted_list[69999], unsorted_list[89999], unsorted_list[99999]]
+search_test_names['sorted_list'] = [sorted_list[9999], sorted_list[29999], sorted_list[49999]
+                                    ,sorted_list[69999], sorted_list[89999], sorted_list[99999]]
+
 
 # # Combines lists into dictionary and then converts to list of dictionaries
 # persons_dict = {'first_name':first_names, 'last_name':last_names, 'address':states}
