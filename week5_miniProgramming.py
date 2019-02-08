@@ -138,13 +138,18 @@ set_time_testing(unsorted_set,search_test_names['sorted_list'])
 
 # organizes results into pandas dataframe for easier exploration
 results_df = pd.DataFrame(time_results)
-results_df['Index' == 'NA', 'Search Time']
+results_df.loc[results_df['Index'] == 'NA', 'Search Time'].mean()
 
-# sns.catplot(x="Sort Key", y="Sort Time"
-#             , hue = "Method", data=results_df)
-# plt.show()
+sns.catplot(x="Search Function", y="Search Time"
+            , hue = "Index", data=results_df)
+plt.show()
 
-# sns.catplot(x="Sort Key", y="Sort Time"
-#             , hue = "Method", jitter = False
-#             , data=results_df.loc[~results_df['Method'].isin(['Gnome Sort','Bubble Sort'])])
-# plt.show()
+sns.catplot(x="Index", y="Search Time"
+            , hue = "Search Function", data=results_df)
+plt.show()
+
+sns.catplot(x="Search Function", y="Search Time"
+            , hue = "Index"
+            , data=results_df.loc[results_df['Search Function']!='Linear Search for Unsorted List'])
+plt.show()\
+    
