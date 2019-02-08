@@ -58,12 +58,56 @@ search_test_names['sorted_list'] = [sorted_list[9999], sorted_list[29999], sorte
                                     ,sorted_list[69999], sorted_list[89999], sorted_list[99999]]
 
 
-# # Combines lists into dictionary and then converts to list of dictionaries
-# persons_dict = {'first_name':first_names, 'last_name':last_names, 'address':states}
-# persons_list = pd.DataFrame(persons_dict).to_dict('records')
+## DEFINES THE LIST SEARCH FUNCTIONS
+## Defines the Linear Search Test Function
+def linear_search(list, item):
+    # to indentify the index
+    index = 0
+    while index < len(list):
+        if list[index] == item:
+            return "Index of element is ",index
+        else:
+            index = index + 1
+    # If no more available guesses, item is not in the list
+    return None
+
+## Defines the Binary Search Test Function
+def binary_search(list, item):
+  # lower & upper _limit keep track of which part of the list contain the remaining viable guesses.
+  lower_limit = 0
+  upper_limit = len(list) - 1
+
+  # While there are still available guesses ...
+  while lower_limit <= upper_limit:
+    
+    # identify the current middle element
+    mid_point = (lower_limit + upper_limit) // 2
+    guess = list[mid_point]
+    
+    # If guess is correct
+    if guess == item:
+      # guess doesn't matter, loop counter demonstrates scaling along with search time
+      return mid_point
+
+    # If guess is too high
+    if guess > item:
+      upper_limit = mid_point - 1
+
+    # If guess is too low
+    else:
+      lower_limit = mid_point + 1  
+    
+  # If no more available guesses, item is not in the list
+  return None
 
 
-# TESTS 1. QUICK SORT, 2. BUBBLE SORT, 3. GNOME SORT, 4. INSERTION SORT, 5. SELECTION SORT, AND 6. STRAND SORT
+# Now search for these six names in each of the collections.  
+# Use linear search for the unsorted list, 
+# binary search for the sorted list, 
+# and use the set.remove() builtin for the set.  
+# Capture the time it takes using all three algorithms.
+
+# # TESTS 1. QUICK SORT, 2. BUBBLE SORT, 3. GNOME SORT, 4. INSERTION SORT, 5. SELECTION SORT, AND 6. STRAND SORT
 # due to in-place sorting or elimination of the original data,
 # I'll create copies of the test data for each sort function for 2 sorts
 persons_list_quick1 = persons_list.copy()
