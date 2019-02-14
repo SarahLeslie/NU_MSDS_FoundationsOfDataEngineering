@@ -1,6 +1,5 @@
 # IMPORTS REQUIRED PACKAGES
 import random
-import string
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,8 +8,7 @@ from faker import Faker
 
 fake = Faker()
 
-
-# GENERATES LIST OF 3K FAKE NAMES
+# GENERATES LIST OF 3K FAKE NAMES TO SAMPLE FROM
 num_names_needed = 5 + 5**2 + 5**3 + 5**4 + 5**5
 fake.seed(7)
 names = [fake.name() for _ in range(num_names_needed)]
@@ -21,6 +19,7 @@ len(set(names))
 # there are dupes, which is ok but to be careful with assignment, we'll de-dupe this list
 names = list(set(names))
 len(names)
+
 
 # SPLITS THE NAMES INTO UNIQUE LISTS FOR EACH LEVEL 
 # determines the size of each list
@@ -55,6 +54,10 @@ len(fifth_lev) == 5*len(set(fourth_lev))
 
 # GENERATES TEST Graph
 people_graph = {}
+
+# we'll want a starting point...
+people_graph['level_0_start'] = list(first_lev)
+
 # creates 5 connections for each first level person 
 # 1 dupe in second level 
 # but dupes will never be connected to the same person in the previous level because lists are orderd
@@ -81,7 +84,7 @@ for i in range(len(fifth_lev)):
   people_graph[fifth_lev[i]] = []
 
 # checking
-len(people_graph) == lev_1_size + lev_2_size + lev_3_size + lev_4_size + lev_5_size
+len(people_graph) == lev_1_size + lev_2_size + lev_3_size + lev_4_size + lev_5_size + 1
 
 # checking to see that each connection has 0 dupes
 true_counter = 0 
@@ -92,91 +95,49 @@ true_counter == len(people_graph)
 # all set!
 
 
-# Defines Strand sort function (to sort the list)
-# Defines merge of pre-sorted lists first
-def my_merge(l1, l2):
-  result = []
-  while (l1 and l2):
-    if (l1[0] <= l2[0]):
-        result.append(l1.pop(0))
-    else:
-        result.append(l2.pop(0))
-  # Add the remaining of the lists
-  result.extend(l1 if l1 else l2)
-  return result
+# lastly, let's create a list of the people to search for
+people_to_search_for = []
+random.seed(7)
+people_to_search_for.append(first_lev[random.randint(0,lev_1_size-1)])
+people_to_search_for += [second_lev[i] for i in random.sample(range(lev_2_size), 2)]
+people_to_search_for += [third_lev[i] for i in random.sample(range(lev_3_size), 3)]
+people_to_search_for += [fourth_lev[i] for i in random.sample(range(lev_3_size), 4)]
+people_to_search_for += [fifth_lev[i] for i in random.sample(range(lev_3_size), 5)]
 
-def strandSort(a_list):
-  if len(a_list) < 2:
-    return a_list 
-  result_list = []
-  while len(a_list)>0:
-    i = 0
-    sublist = [a_list.pop(i)]
-    while i < len(a_list):
-      if a_list[i] > sublist[-1]:
-        sublist.append(a_list.pop(i))
+
+# DEFINES BREADTH-FIRST SEARCH FUNCTION
+def search(starter_name, search_for_name):
+  # instantiates 'connection counter' to track how far into the graph we're currently searching
+  connect_counter = 1
+  degree_incre_token = 'Degree Increment Token Here!'
+  # instantiates the data structures to keep tracking of who we have to search (and what their degree is)...
+  # (could use dict on my pc since python 3.7 preserves ordering of keys based on insert, 
+  # but in case this is run with another version of python..)
+  # and who we've already searched for
+  searched = [degree_incre_token]
+  to_search = list(people_graph[starter_name])
+  to_search.append(degree_incre_token)
+  while to_search:
+    person = to_search.pop(0)
+    # if person == "Karen Holland":
+    #   return('stop')
+    if person == degree_incre_token:
+      connect_counter += 1
+      to_search.append(person)
+    if person not in searched:
+      if person == search_for_name:
+        return("We found " + person + "!  They are in level " + str(connect_counter) + " of the graph.")
       else:
-        i = i + 1
-    result_list = my_merge(sublist,result_list)
-  return result_list
+        searched.append(person)
+        to_search += list(people_graph[person])
+  return("Can't find " + search_for_name + ".  :(")
 
-# Instantiates a sorted version of the same list of strings
-temp_unsorted_list = unsorted_list.copy
-sorted_list = strandSort(temp_unsorted_list)
-
-# Stores 10kth, 30kth, 50kth, 70kth, 90kth, and 100kth strings from each set of test data (unsorted list, set, sorted list)
-search_test_names = {}
-search_test_names['unsorted_list'] = [unsorted_list[9999], unsorted_list[29999], unsorted_list[49999]
-                                    ,unsorted_list[69999], unsorted_list[89999], unsorted_list[99999]]
-search_test_names['sorted_list'] = [sorted_list[9999], sorted_list[29999], sorted_list[49999]
-                                    ,sorted_list[69999], sorted_list[89999], sorted_list[99999]]
+# testing the initial search function
+for i in people_to_search_for:
+  search('level_0_start', i)
 
 
-## DEFINES THE LIST SEARCH FUNCTIONS
-## Defines the Linear Search Test Function
-def linear_search(list, item):
-    # to indentify the index
-    index = 0
-    while index < len(list):
-        if list[index] == item:
-            return "Index of element is ",index
-        else:
-            index = index + 1
-    # If no more available guesses, item is not in the list
-    return None
-
-## Defines the Binary Search Test Function
-def binary_search(list, item):
-  # lower & upper _limit keep track of which part of the list contain the remaining viable guesses.
-  lower_limit = 0
-  upper_limit = len(list) - 1
-
-  # While there are still available guesses ...
-  while lower_limit <= upper_limit:
-    
-    # identify the current middle element
-    mid_point = (lower_limit + upper_limit) // 2
-    guess = list[mid_point]
-    
-    # If guess is correct
-    if guess == item:
-      # guess doesn't matter, loop counter demonstrates scaling along with search time
-      return mid_point
-
-    # If guess is too high
-    if guess > item:
-      upper_limit = mid_point - 1
-
-    # If guess is too low
-    else:
-      lower_limit = mid_point + 1  
-    
-  # If no more available guesses, item is not in the list
-  return None
-
-
-# Now search for these six names in each of the collections.  
-# # TESTING
+# TESTING
 # instantiates list to capture time test results
 time_results = []
 
@@ -203,12 +164,6 @@ def set_time_testing(test_set,search_for_list):
       time_results.append({'Search Function':"Set '.remove()'"
                           ,'Index':'NA'
                           ,'Search Time':search_time})
-
-# conducts the time testing
-list_time_testing(linear_search,'Linear Search for Unsorted List',unsorted_list,search_test_names['unsorted_list'])
-list_time_testing(binary_search,'Binary Search for Sorted List',sorted_list,search_test_names['sorted_list'])
-set_time_testing(unsorted_set,search_test_names['unsorted_list'])
-set_time_testing(unsorted_set,search_test_names['sorted_list'])
 
 # organizes results into pandas dataframe for easier exploration
 results_df = pd.DataFrame(time_results)
