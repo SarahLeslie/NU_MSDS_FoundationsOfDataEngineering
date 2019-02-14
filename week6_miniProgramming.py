@@ -106,79 +106,57 @@ people_to_search_for += [fifth_lev[i] for i in random.sample(range(lev_3_size), 
 
 
 # DEFINES BREADTH-FIRST SEARCH FUNCTION
-def search(starter_name, search_for_name):
+def breadth_first_search(starter_name, search_for_name):
   # instantiates 'connection counter' to track how far into the graph we're currently searching
   connect_counter = 1
   degree_incre_token = 'Degree Increment Token Here!'
   # instantiates the data structures to keep tracking of who we have to search (and what their degree is)...
-  # (could use dict on my pc since python 3.7 preserves ordering of keys based on insert, 
-  # but in case this is run with another version of python..)
   # and who we've already searched for
   searched = [degree_incre_token]
   to_search = list(people_graph[starter_name])
   to_search.append(degree_incre_token)
   while to_search:
     person = to_search.pop(0)
-    # if person == "Karen Holland":
-    #   return('stop')
     if person == degree_incre_token:
       connect_counter += 1
       to_search.append(person)
     if person not in searched:
       if person == search_for_name:
-        return("We found " + person + "!  They are in level " + str(connect_counter) + " of the graph.")
+        return connect_counter
+        #return("We found " + person + "!  They are in level " + str(connect_counter) + " of the graph.")
       else:
         searched.append(person)
         to_search += list(people_graph[person])
-  return("Can't find " + search_for_name + ".  :(")
+  return False
+  #return("Can't find " + search_for_name + ".  :(")
 
 # testing the initial search function
 for i in people_to_search_for:
-  search('level_0_start', i)
+  breadth_first_search('level_0_start', i)
 
 
 # TESTING
 # instantiates list to capture time test results
-time_results = []
+results = []
 
 # defines 2 functions to time test search method (1 for the lists, 1 for the set)
-def list_time_testing(search_function,method_label,test_list,search_for_list):
-    indeces = [9999, 29999, 49999, 69999, 89999, 99999]
-    for i in range(len(search_for_list)):
-        item = search_for_list[i]
-        start = time.perf_counter()
-        search_function(test_list,item)
-        end = time.perf_counter()
-        search_time = (end - start)*1000
-        time_results.append({'Search Function':method_label
-                              ,'Index':indeces[i]
-                              ,'Search Time':search_time})
+def graph_time_testing(name_to_search):
+  start = time.perf_counter()
+  graph_level = breadth_first_search('level_0_start', name_to_search)
+  end = time.perf_counter()
+  search_time = (end - start)*1000
+  results.append({'Name':name_to_search
+                      ,'Graph Level':str(graph_level)
+                      ,'Search Time':search_time})
 
-def set_time_testing(test_set,search_for_list):
-  for i in range(len(search_for_list)):
-      item = search_for_list[i]
-      start = time.perf_counter()
-      test_set.remove(item)
-      end = time.perf_counter()
-      search_time = (end - start)*1000
-      time_results.append({'Search Function':"Set '.remove()'"
-                          ,'Index':'NA'
-                          ,'Search Time':search_time})
+# runs time testing
+for i in people_to_search_for:
+  graph_time_testing(i)
 
 # organizes results into pandas dataframe for easier exploration
-results_df = pd.DataFrame(time_results)
-results_df.loc[results_df['Index'] == 'NA', 'Search Time'].mean()
+results_df = pd.DataFrame(results)
 
-sns.catplot(x="Search Function", y="Search Time"
-            , hue = "Index", data=results_df)
+sns.set(style="darkgrid")
+sns.catplot(x="Graph Level", y="Search Time"
+            , hue = "Graph Level", data=results_df, kind='swarm')
 plt.show()
-
-sns.catplot(x="Index", y="Search Time"
-            , hue = "Search Function", data=results_df)
-plt.show()
-
-sns.catplot(x="Search Function", y="Search Time"
-            , hue = "Index"
-            , data=results_df.loc[results_df['Search Function']!='Linear Search for Unsorted List'])
-plt.show()\
-    
