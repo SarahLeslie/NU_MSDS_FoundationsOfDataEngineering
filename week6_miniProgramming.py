@@ -5,18 +5,92 @@ import time
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from faker import Faker
+
+fake = Faker()
 
 
-# GENERATES TEST DATA
-# Instantiates (unsorted) list of 100,000 10-character strings
-random.seed(6)
-unsorted_list = ["".join(random.choices(string.ascii_lowercase, k=10)) for _ in range(100000)]
+# GENERATES LIST OF 3K FAKE NAMES
+num_names_needed = 5 + 5**2 + 5**3 + 5**4 + 5**5
+fake.seed(7)
+names = [fake.name() for _ in range(num_names_needed)]
+# checking
+names[0:10]
+len(names)
+len(set(names))
+# there are dupes, which is ok but to be careful with assignment, we'll de-dupe this list
+names = list(set(names))
+len(names)
 
-# Instantiates a set of the same strings
-unsorted_set = set(unsorted_list)
-# Checks to see there are no dupes within the list/set
-len(unsorted_list) == len(unsorted_set)
-# confirmed!
+# SPLITS THE NAMES INTO UNIQUE LISTS FOR EACH LEVEL 
+# determines the size of each list
+lev_1_size = 5
+lev_2_size = lev_1_size*5 - 2 # adding some dupes
+lev_3_size = lev_2_size*5 - 4
+lev_4_size = lev_3_size*5 - 16
+lev_5_size = lev_4_size*5 - 64
+# instantiating name lists for each level
+first_lev = names[:lev_1_size]
+second_lev = names[lev_1_size:lev_1_size+lev_2_size]
+third_lev = names[lev_1_size+lev_2_size:lev_1_size+lev_2_size+lev_3_size]
+fourth_lev = names[lev_1_size+lev_2_size+lev_3_size:lev_1_size+lev_2_size+lev_3_size+lev_4_size]
+fifth_lev = names[lev_1_size+lev_2_size+lev_3_size+lev_4_size:lev_1_size+lev_2_size+lev_3_size+lev_4_size+lev_5_size]
+# checking
+lev_1_size == len(first_lev)
+lev_2_size == len(second_lev)
+lev_3_size == len(third_lev)
+lev_4_size == len(fourth_lev)
+lev_5_size == len(fifth_lev)
+# adding duplicate names to each list to fill out max possible (won't need all) level requirements
+second_lev = second_lev + second_lev[:2]
+third_lev = third_lev + third_lev[:4]
+fourth_lev = fourth_lev + fourth_lev[:16]
+fifth_lev = fifth_lev + fifth_lev[:64]
+# checkin final sizes
+len(first_lev) == 5
+len(second_lev) == 5*len(set(first_lev))
+len(third_lev) == 5*len(set(second_lev))
+len(fourth_lev) == 5*len(set(third_lev))
+len(fifth_lev) == 5*len(set(fourth_lev))
+
+# GENERATES TEST Graph
+people_graph = {}
+# creates 5 connections for each first level person 
+# 1 dupe in second level 
+# but dupes will never be connected to the same person in the previous level because lists are orderd
+for i in range(len(first_lev)):
+  people_graph[first_lev[i]] = second_lev[5*i:5*i+5]
+
+# de-dupes level 2 so we don't assign their 5 level 3 connections twice
+second_lev = list(dict.fromkeys(second_lev)) # preserves order vs using set.  not that it matters much
+for i in range(len(second_lev)):
+  people_graph[second_lev[i]] = third_lev[5*i:5*i+5]
+
+third_lev = list(dict.fromkeys(third_lev)) # preserves order vs using set.  not that it matters much
+for i in range(len(third_lev)):
+  people_graph[third_lev[i]] = fourth_lev[5*i:5*i+5]
+
+fourth_lev = list(dict.fromkeys(fourth_lev)) # preserves order vs using set.  not that it matters much
+for i in range(len(fourth_lev)):
+  people_graph[fourth_lev[i]] = fifth_lev[5*i:5*i+5]
+
+# not sure this is necessary but... 
+# let's imagine the level 5 people all have 'facebook accounts with no friends' vs. 'not having accounts'
+fifth_lev = list(dict.fromkeys(fifth_lev)) # preserves order vs using set.  not that it matters much
+for i in range(len(fifth_lev)):
+  people_graph[fifth_lev[i]] = []
+
+# checking
+len(people_graph) == lev_1_size + lev_2_size + lev_3_size + lev_4_size + lev_5_size
+
+# checking to see that each connection has 0 dupes
+true_counter = 0 
+for i in people_graph.keys():
+  true_counter = true_counter + (len(people_graph[i]) == len(set(people_graph[i])))
+
+true_counter == len(people_graph)
+# all set!
+
 
 # Defines Strand sort function (to sort the list)
 # Defines merge of pre-sorted lists first
