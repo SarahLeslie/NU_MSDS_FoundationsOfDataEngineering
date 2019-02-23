@@ -17,135 +17,165 @@ import time
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from faker import Faker
 
-fake = Faker()
+# GENERATES THE GRAPH
+graph = {}
 
-# GENERATES LIST OF 3K FAKE NAMES TO SAMPLE FROM
-num_names_needed = 5 + 5**2 + 5**3 + 5**4 + 5**5
-fake.seed(7)
-names = [fake.name() for _ in range(num_names_needed)]
-# checking
-names[0:10]
-len(names)
-len(set(names))
-# there are dupes, which is ok but to be careful with assignment, we'll de-dupe this list
-names = list(set(names))
-len(names)
+# the nodes
+nodes = ['NYC', 'DC', 'Atlanta', 'New Orleans', 'Dallas'
+        , 'Indianapolis', 'Kansas City', 'Denver'
+        , 'Pittsburg', 'Cincinnati', 'St Louis', 'Oklahoma City'
+        , 'Salt Lake City', 'Albuquerque', 'Phoenix', 'Las Vegas', 'San Diego', 'Los Angeles']
 
+# instatiate the nodes in the graph
+for node in nodes:
+    graph[node] = {}
 
-# SPLITS THE NAMES INTO UNIQUE LISTS FOR EACH LEVEL 
-# determines the size of each list
-lev_1_size = 5
-lev_2_size = lev_1_size*5 - 2 # adding some dupes
-lev_3_size = lev_2_size*5 - 4
-lev_4_size = lev_3_size*5 - 16
-lev_5_size = lev_4_size*5 - 64
-# instantiating name lists for each level
-first_lev = names[:lev_1_size]
-second_lev = names[lev_1_size:lev_1_size+lev_2_size]
-third_lev = names[lev_1_size+lev_2_size:lev_1_size+lev_2_size+lev_3_size]
-fourth_lev = names[lev_1_size+lev_2_size+lev_3_size:lev_1_size+lev_2_size+lev_3_size+lev_4_size]
-fifth_lev = names[lev_1_size+lev_2_size+lev_3_size+lev_4_size:lev_1_size+lev_2_size+lev_3_size+lev_4_size+lev_5_size]
-# checking
-lev_1_size == len(first_lev)
-lev_2_size == len(second_lev)
-lev_3_size == len(third_lev)
-lev_4_size == len(fourth_lev)
-lev_5_size == len(fifth_lev)
-# adding duplicate names to each list to fill out max possible (won't need all) level requirements
-second_lev = second_lev + second_lev[:2]
-third_lev = third_lev + third_lev[:4]
-fourth_lev = fourth_lev + fourth_lev[:16]
-fifth_lev = fifth_lev + fifth_lev[:64]
-# checkin final sizes
-len(first_lev) == 5
-len(second_lev) == 5*len(set(first_lev))
-len(third_lev) == 5*len(set(second_lev))
-len(fourth_lev) == 5*len(set(third_lev))
-len(fifth_lev) == 5*len(set(fourth_lev))
+# create the driving hours vertices for each node
+# NYC
+graph["NYC"]["DC"] = 2
+graph["NYC"]["Indianapolis"] = 11
+graph["NYC"]["Pittsburg"] = 7
 
-# GENERATES TEST Graph
-people_graph = {}
+# DC
+graph["DC"]["Atlanta"] = 2
 
-# we'll want a starting point...
-people_graph['level_0_start'] = list(first_lev)
+# Atlanta
+graph["Atlanta"]["New Orleans"] = 2
 
-# creates 5 connections for each first level person 
-# 1 dupe in second level 
-# but dupes will never be connected to the same person in the previous level because lists are orderd
-for i in range(len(first_lev)):
-  people_graph[first_lev[i]] = second_lev[5*i:5*i+5]
+# New Orleans
+graph["New Orleans"]["Dallas"] = 2
 
-# de-dupes level 2 so we don't assign their 5 level 3 connections twice
-second_lev = list(dict.fromkeys(second_lev)) # preserves order vs using set.  not that it matters much
-for i in range(len(second_lev)):
-  people_graph[second_lev[i]] = third_lev[5*i:5*i+5]
+# Dallas
+graph["Dallas"]["Albuquerque"] = 2
 
-third_lev = list(dict.fromkeys(third_lev)) # preserves order vs using set.  not that it matters much
-for i in range(len(third_lev)):
-  people_graph[third_lev[i]] = fourth_lev[5*i:5*i+5]
+# Indianapolis
+graph["Indianapolis"]["Kansas City"] = 8
 
-fourth_lev = list(dict.fromkeys(fourth_lev)) # preserves order vs using set.  not that it matters much
-for i in range(len(fourth_lev)):
-  people_graph[fourth_lev[i]] = fifth_lev[5*i:5*i+5]
+# Kansas City
+graph["Kansas City"]["Denver"] = 7
 
-# not sure this is necessary but... 
-# let's imagine the level 5 people all have 'facebook accounts with no friends' vs. 'not having accounts'
-fifth_lev = list(dict.fromkeys(fifth_lev)) # preserves order vs using set.  not that it matters much
-for i in range(len(fifth_lev)):
-  people_graph[fifth_lev[i]] = []
+# Denver
+graph["Denver"]["Salt Lake City"] = 6
+
+# Pittsburg
+graph["Pittsburg"]["Cincinnati"] = 6
+
+# Cincinnati
+graph["Cincinnati"]["St Louis"] = 8
+
+# St Louis
+graph["St Louis"]["Oklahoma City"] = 7
+
+# Oklahoma City
+graph["Oklahoma City"]["Albuquerque"] = 9
+
+# Salt Lake City
+graph["Salt Lake City"]["Las Vegas"] = 9
+
+# Albuquerque
+graph["Albuquerque"]["Phoenix"] = 2
+
+# Phoenix
+graph["Phoenix"]["Las Vegas"] = 2
+graph["Phoenix"]["San Diego"] = 5
+
+# Las Vegas
+graph["Las Vegas"]["San Diego"] = 2
+graph["Las Vegas"]["Los Angeles"] = 5
+
+# San Diego
+graph["San Diego"]["Los Angeles"] = 2
+
+graph.keys()
 
 # checking
-len(people_graph) == lev_1_size + lev_2_size + lev_3_size + lev_4_size + lev_5_size + 1
-
-# checking to see that each connection has 0 dupes
-true_counter = 0 
-for i in people_graph.keys():
-  true_counter = true_counter + (len(people_graph[i]) == len(set(people_graph[i])))
-
-true_counter == len(people_graph)
+for node in graph.keys():
+    for connection in graph[node].keys():
+        print(node, " to ", connection, " is ", graph[node][connection], " hours")
 # all set!
 
 
-# lastly, let's create a list of the people to search for
-people_to_search_for = []
-random.seed(7)
-people_to_search_for.append(first_lev[random.randint(0,lev_1_size-1)])
-people_to_search_for += [second_lev[i] for i in random.sample(range(lev_2_size), 2)]
-people_to_search_for += [third_lev[i] for i in random.sample(range(lev_3_size), 3)]
-people_to_search_for += [fourth_lev[i] for i in random.sample(range(lev_3_size), 4)]
-people_to_search_for += [fifth_lev[i] for i in random.sample(range(lev_3_size), 5)]
-
-
-# DEFINES BREADTH-FIRST SEARCH FUNCTION
-def breadth_first_search(starter_name, search_for_name):
+# DEFINES GRAPH SEARCH FUNCTIONS
+# Breadth-First Search
+def breadth_first_search(starting_city, ending_city):
   # instantiates 'connection counter' to track how far into the graph we're currently searching
   connect_counter = 1
   degree_incre_token = 'Degree Increment Token Here!'
-  # instantiates the data structures to keep tracking of who we have to search (and what their degree is)...
-  # and who we've already searched for
+  # instantiates the data structures to keep tracking of which nodes we have to search...
+  # and which we've already searched for
   searched = [degree_incre_token]
-  to_search = list(people_graph[starter_name])
+  to_search = list(graph[starting_city])
   to_search.append(degree_incre_token)
   while to_search:
-    person = to_search.pop(0)
-    if person == degree_incre_token:
+    city = to_search.pop(0)
+    if city == degree_incre_token:
       connect_counter += 1
-      to_search.append(person)
-    if person not in searched:
-      if person == search_for_name:
+      to_search.append(city)
+    if city not in searched:
+      if city == ending_city:
         return connect_counter
-        #return("We found " + person + "!  They are in level " + str(connect_counter) + " of the graph.")
       else:
-        searched.append(person)
-        to_search += list(people_graph[person])
+        searched.append(city)
+        to_search += list(graph[city])
   return False
-  #return("Can't find " + search_for_name + ".  :(")
 
-# testing the initial search function
-for i in people_to_search_for:
-  breadth_first_search('level_0_start', i)
+# testing BFS
+breadth_first_search('NYC', 'Los Angeles')
+
+# Dijkstra's Algorithm
+# the costs table
+infinity = float("inf")
+costs = {}
+costs["a"] = 6
+costs["b"] = 2
+costs["fin"] = infinity
+
+# the parents table
+parents = {}
+parents["a"] = "start"
+parents["b"] = "start"
+parents["fin"] = None
+
+processed = []
+
+def find_lowest_cost_node(costs):
+    lowest_cost = float("inf")
+    lowest_cost_node = None
+    # Go through each node.
+    for node in costs:
+        cost = costs[node]
+        # If it's the lowest cost so far and hasn't been processed yet...
+        if cost < lowest_cost and node not in processed:
+            # ... set it as the new lowest-cost node.
+            lowest_cost = cost
+            lowest_cost_node = node
+    return lowest_cost_node
+
+# Find the lowest-cost node that you haven't processed yet.
+node = find_lowest_cost_node(costs)
+# If you've processed all the nodes, this while loop is done.
+while node is not None:
+    cost = costs[node]
+    # Go through all the neighbors of this node.
+    neighbors = graph[node]
+    for n in neighbors.keys():
+        new_cost = cost + neighbors[n]
+        # If it's cheaper to get to this neighbor by going through this node...
+        if costs[n] > new_cost:
+            # ... update the cost for this node.
+            costs[n] = new_cost
+            # This node becomes the new parent for this neighbor.
+            parents[n] = node
+    # Mark the node as processed.
+    processed.append(node)
+    # Find the next node to process, and loop.
+    node = find_lowest_cost_node(costs)
+
+print("Cost from the start to each node:")
+print(costs)
+
+# testing Dijkstra
 
 
 # TESTING
