@@ -99,81 +99,101 @@ for node in graph.keys():
 # DEFINES GRAPH SEARCH FUNCTIONS
 # Breadth-First Search
 def breadth_first_search(starting_city, ending_city):
-  # instantiates 'connection counter' to track how far into the graph we're currently searching
-  connect_counter = 1
-  degree_incre_token = 'Degree Increment Token Here!'
-  # instantiates the data structures to keep tracking of which nodes we have to search...
-  # and which we've already searched for
-  searched = [degree_incre_token]
-  to_search = list(graph[starting_city])
-  to_search.append(degree_incre_token)
-  while to_search:
-    city = to_search.pop(0)
-    if city == degree_incre_token:
-      connect_counter += 1
-      to_search.append(city)
-    if city not in searched:
-      if city == ending_city:
-        return connect_counter
-      else:
-        searched.append(city)
-        to_search += list(graph[city])
-  return False
+    # instantiates the data structures to keep tracking of which nodes we have to search...
+    # and which we've already searched for
+    searched = [starting_city]
+    to_search = []
+    # instantiates separator string to print formatted path
+    seperator = ' -> '
+    
+    # lkknvowinv
+    neighbors = graph[starting_city].keys()
+    for neighbor in neighbors:
+        new_path = list([starting_city])
+        new_path.append(neighbor)
+        if neighbor == ending_city:
+            driving_time = 0 
+            for first in range(len(new_path)-1) :
+                driving_time += graph[new_path[first]][new_path[first+1]]
+            formatted_path = seperator.join(new_path)
+            return(formatted_path + " takes " + str(driving_time) + " hours.")
+        else:
+            to_search.append(new_path)
+    
+    while to_search:
+        path = to_search.pop(0)
+        city = path[-1]
+        if city not in searched:
+            neighbors = graph[city].keys()
+            for neighbor in neighbors:
+                new_path = list(path)
+                new_path.append(neighbor)
+                if neighbor == ending_city:
+                    driving_time = 0 
+                    for first in range(len(new_path)-1) :
+                        driving_time += graph[new_path[first]][new_path[first+1]]
+                    formatted_path = seperator.join(new_path)
+                    return(formatted_path + " takes " + str(driving_time) + " hours.")
+                else :
+                    to_search.append(new_path)
+                    searched.append(city)
+    return False
 
 # testing BFS
 breadth_first_search('NYC', 'Los Angeles')
 
 # Dijkstra's Algorithm
-# the costs table
-infinity = float("inf")
-costs = {}
-costs["a"] = 6
-costs["b"] = 2
-costs["fin"] = infinity
+def dijkstras(starting_city, ending_city):
+    # the costs table
+    infinity = float("inf")
+    costs = {}
+    costs["a"] = 6
+    costs["b"] = 2
+    costs["fin"] = infinity
 
-# the parents table
-parents = {}
-parents["a"] = "start"
-parents["b"] = "start"
-parents["fin"] = None
+    # the parents table
+    parents = {}
+    parents["a"] = "start"
+    parents["b"] = "start"
+    parents["fin"] = None
 
-processed = []
+    processed = []
 
-def find_lowest_cost_node(costs):
-    lowest_cost = float("inf")
-    lowest_cost_node = None
-    # Go through each node.
-    for node in costs:
-        cost = costs[node]
-        # If it's the lowest cost so far and hasn't been processed yet...
-        if cost < lowest_cost and node not in processed:
-            # ... set it as the new lowest-cost node.
-            lowest_cost = cost
-            lowest_cost_node = node
-    return lowest_cost_node
+    def find_lowest_cost_node(costs):
+        lowest_cost = float("inf")
+        lowest_cost_node = None
+        # Go through each node.
+        for node in costs:
+            cost = costs[node]
+            # If it's the lowest cost so far and hasn't been processed yet...
+            if cost < lowest_cost and node not in processed:
+                # ... set it as the new lowest-cost node.
+                lowest_cost = cost
+                lowest_cost_node = node
+        return lowest_cost_node
 
-# Find the lowest-cost node that you haven't processed yet.
-node = find_lowest_cost_node(costs)
-# If you've processed all the nodes, this while loop is done.
-while node is not None:
-    cost = costs[node]
-    # Go through all the neighbors of this node.
-    neighbors = graph[node]
-    for n in neighbors.keys():
-        new_cost = cost + neighbors[n]
-        # If it's cheaper to get to this neighbor by going through this node...
-        if costs[n] > new_cost:
-            # ... update the cost for this node.
-            costs[n] = new_cost
-            # This node becomes the new parent for this neighbor.
-            parents[n] = node
-    # Mark the node as processed.
-    processed.append(node)
-    # Find the next node to process, and loop.
+    # Find the lowest-cost node that you haven't processed yet.
     node = find_lowest_cost_node(costs)
+    # If you've processed all the nodes, this while loop is done.
+    while node is not None:
+        cost = costs[node]
+        # Go through all the neighbors of this node.
+        neighbors = graph[node]
+        for n in neighbors.keys():
+            new_cost = cost + neighbors[n]
+            # If it's cheaper to get to this neighbor by going through this node...
+            if costs[n] > new_cost:
+                # ... update the cost for this node.
+                costs[n] = new_cost
+                # This node becomes the new parent for this neighbor.
+                parents[n] = node
+        # Mark the node as processed.
+        processed.append(node)
+        # Find the next node to process, and loop.
+        node = find_lowest_cost_node(costs)
 
-print("Cost from the start to each node:")
-print(costs)
+    print("Cost from the start to each node:")
+    print(costs)
 
 # testing Dijkstra
 
