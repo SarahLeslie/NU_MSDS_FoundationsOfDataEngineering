@@ -234,18 +234,25 @@ dijkstras('NYC', 'Los Angeles')
 results = []
 bfs = breadth_first_search('NYC', 'Los Angeles')
 d = dijkstras('NYC', 'Los Angeles')
-results.append({'Name':name_to_search
-                      ,'Graph Level':str(graph_level)
-                      ,'Search Time':search_time})
-
-# runs time testing
-for i in people_to_search_for:
-  graph_time_testing(i)
+results.append({'Method Used':'Breadth-First Search'
+                ,'Path':bfs[0]
+                ,'Total Driving Time':bfs[1]
+                ,'Number of Stops':bfs[2]})
+results.append({'Method Used':'Dijkstra\'s Algorithm'
+                ,'Path':d[0]
+                ,'Total Driving Time':d[1]
+                ,'Number of Stops':d[2]})
 
 # organizes results into pandas dataframe for easier exploration
 results_df = pd.DataFrame(results)
+results_melted = pd.melt(results_df, id_vars='Method Used'
+                        , var_name="Result Type", value_vars=["Number of Stops", "Total Driving Time"]
+                        , value_name="Values")
 
 sns.set(style="darkgrid")
-sns.catplot(x="Graph Level", y="Search Time"
-            , hue = "Graph Level", data=results_df, kind='swarm')
+ax = sns.barplot(x="Result Type", y="Values", hue = "Method Used", data=results_melted)
+for col in ax.patches:
+    height = col.get_height()
+    ax.text(col.get_x()+col.get_width()/2., height + 1.5,
+            int(height), ha="center") 
 plt.show()
