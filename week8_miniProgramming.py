@@ -1,98 +1,29 @@
-# The image below shows possible routes to take on a road trip.  RoadTrip_NYC_to_L.A.JPG
-# The nodes represent city names and vertices are the assumed hours the drive would take.
-# First, use the breadth-first algorithm to find the quickest way to get to L.A from NYC 
-# and calculate the time that it will take to get to L.A. from NYC using the breadth first algorithm 
-# (use the weights assigned to the routes even though breadth-first works on unweighted edges 
-# but you should calculate on the side).
-# Print the route e.g. NYC -> DC -> ATL etc -> L.A.
-# Then use Dijkstra's algorithm to find the most optimal route to get to L.A from NYC, 
-# capture the time that it will take to get to L.A (use the weights in the algorithm assigned to the routes)
-# Print the route e.g. NYC -> DC -> ATL etc -> L.A.
-# Compare time of Breadth-first algorithm with Dijkstra's algorithm in terms of trip time and stops.
-# Use Python (matplotlib or Seaborn) or JavaScript (D3) visualization tools to illustrate algorithm performance.
+# Gen data, git --  
+# (do 24/7, 
+# max 8 per day and 40 per week, 
+# extra $5 processing charge for each person paid, 
+# min 4 hour shift?)
 
 # IMPORTS REQUIRED PACKAGES
 import random
-import time
+# import time
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# GENERATES THE GRAPH
-graph = {}
-
-# the nodes
-nodes = ['NYC', 'DC', 'Atlanta', 'New Orleans', 'Dallas'
-        , 'Indianapolis', 'Kansas City', 'Denver'
-        , 'Pittsburg', 'Cincinnati', 'St Louis', 'Oklahoma City'
-        , 'Salt Lake City', 'Albuquerque', 'Phoenix', 'Las Vegas', 'San Diego', 'Los Angeles']
-
-# instatiate the nodes in the graph
-for node in nodes:
-    graph[node] = {}
-
-# create the driving hours vertices for each node
-# NYC
-graph["NYC"]["DC"] = 2
-graph["NYC"]["Indianapolis"] = 11
-graph["NYC"]["Pittsburg"] = 7
-
-# DC
-graph["DC"]["Atlanta"] = 2
-
-# Atlanta
-graph["Atlanta"]["New Orleans"] = 2
-
-# New Orleans
-graph["New Orleans"]["Dallas"] = 2
-
-# Dallas
-graph["Dallas"]["Albuquerque"] = 2
-
-# Indianapolis
-graph["Indianapolis"]["Kansas City"] = 8
-
-# Kansas City
-graph["Kansas City"]["Denver"] = 7
-
-# Denver
-graph["Denver"]["Salt Lake City"] = 6
-
-# Pittsburg
-graph["Pittsburg"]["Cincinnati"] = 6
-
-# Cincinnati
-graph["Cincinnati"]["St Louis"] = 8
-
-# St Louis
-graph["St Louis"]["Oklahoma City"] = 7
-
-# Oklahoma City
-graph["Oklahoma City"]["Albuquerque"] = 9
-
-# Salt Lake City
-graph["Salt Lake City"]["Las Vegas"] = 9
-
-# Albuquerque
-graph["Albuquerque"]["Phoenix"] = 2
-
-# Phoenix
-graph["Phoenix"]["Las Vegas"] = 2
-graph["Phoenix"]["San Diego"] = 5
-
-# Las Vegas
-graph["Las Vegas"]["San Diego"] = 2
-graph["Las Vegas"]["Los Angeles"] = 5
-
-# San Diego
-graph["San Diego"]["Los Angeles"] = 2
-
-graph.keys()
+# GENERATES THE PROBLEM
+daily_hours_to_cover = 24
+days_to_cover = 7
+peronnel = ['officer1', 'officer2', 'officer3', 'officer4', 'officer5', 'officer6']
+base_hourly_wage = 15 # dollars
+overtime_hourly_wage = 15 + 5 # dollars
+max_per_day = 8 # hours before overtime kicks in
+max_per_week = 40 # hours before overtime kicks in
+min_hours_per_shift = 4
+payment_processing_fee = 5 # dollars
 
 # checking
-for node in graph.keys():
-    for connection in graph[node].keys():
-        print(node, " to ", connection, " is ", graph[node][connection], " hours")
+
 # all set!
 
 
