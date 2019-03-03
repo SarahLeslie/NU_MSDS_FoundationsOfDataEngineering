@@ -12,19 +12,43 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # GENERATES THE PROBLEM
+# time needing coverage
 daily_hours_to_cover = 24
-days_to_cover = 7
+days_to_cover = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+
+# personnel
 peronnel = ['officer1', 'officer2', 'officer3', 'officer4', 'officer5', 'officer6']
+
+# costs
 base_hourly_wage = 15 # dollars
 overtime_hourly_wage = 15 + 5 # dollars
-max_per_day = 8 # hours before overtime kicks in
-max_per_week = 40 # hours before overtime kicks in
+payment_processing_fee = 5 # dollars for each officer you have to pay that week
+
+# overtime
+max_consecutive = 8 # consecutive hours before overtime kicks in
+
+# hard constraints
+max_per_week = 40 # hard max for each officer per week
 min_hours_per_shift = 4
-payment_processing_fee = 5 # dollars
+min_time_off = 12 # minimum time off before officer can work again
 
-# checking
+# tracking  data structures
+hours_to_cover = {}
+for day in days_to_cover:
+    hours_to_cover[day] = daily_hours_to_cover
 
-# all set!
+hours_worked = {}
+for officer in peronnel:
+    hours_worked[officer] = {}
+    for day in days_to_cover:
+        hours_worked[officer][day] = 0
+
+# GREEDY ALGORITHM
+while sum(hours_to_cover.values()) > 0:
+    for day in days_to_cover:
+        while hours_to_cover[day] > 0:
+            if sum(hours_worked['officer1'].values()) < 40:
+                if 
 
 
 # DEFINES GRAPH SEARCH FUNCTIONS
