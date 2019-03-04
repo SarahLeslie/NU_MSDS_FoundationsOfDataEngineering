@@ -8,6 +8,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import copy
 
 # GENERATES THE PROBLEM
 # time needing coverage
@@ -35,7 +36,7 @@ for officer in peronnel:
 # costs
 base_hourly_wage = 15 # dollars
 overtime_hourly_wage = 15 + 5 # dollars
-payment_processing_fee = 30 # dollars for each officer you have to pay that week
+onboarding_cost = 1000 # dollars for each officer you have to pay that week
 
 # overtime
 consecutive_before_overtime = 8 # consecutive hours before overtime kicks in
@@ -44,7 +45,7 @@ consecutive_before_overtime = 8 # consecutive hours before overtime kicks in
 max_per_week = 40 # hard max for each officer per week
 max_per_day = 12 # hard max for each officer per day
 min_hours_per_shift = 4
-max_consecutive = 16 # maximum consecutive hours an officer can work
+max_consecutive = 14 # maximum consecutive hours an officer can work
 # officers need a minimum time off equal to the the length of their last shift
 
 # GREEDY ALGORITHM
@@ -57,50 +58,78 @@ def last_two_days_last_hour_worked(officer, day, current_hour):
     return last_hour_worked
 
 # at any given time, how many hours can an officer work (before overtime)?
-def hours_can_work_before_overtime(officer, day, current_hour, most_rec_consecutive):
+def hours_can_work(officer, day, current_hour, max_hours):
     hours_needed = 24 - current_hour
     if (sum([len(sublist) for sublist in hours_worked[officer].values()]) + min_hours_per_shift) > max_per_week:
         return 0
-    if (len(hours_worked[officer][day]) + min(hours_needed,min_hours_per_shift)) > max_per_day:
+    if (len(hours_worked[officer][day]) + min(hours_needed, min_hours_per_shift)) > max_per_day:
         return 0
     last_hour_worked = last_two_days_last_hour_worked(officer, day, current_hour)
     if ((last_hour_worked is None) or (current_hour - last_hour_worked)) >= most_rec_consecutive[officer]:
-        return min(max_per_week - sum([len(sublist) for sublist in hours_worked[officer].values()]), consecutive_before_overtime)
+        return min(max_per_week - sum([len(sublist) for sublist in hours_worked[officer].values()]), max_hours)
     else:
         return 0
 
-# assigning hours to workers
+# main code chere
+# track which officers are included in schedule
+min_personnel = -(-24*7 // 40)
+included = peronnel[0:min_personnel]
+
+def assign_hours(day, max_hours):
+    for officer in included:
+        if hours_to_cover[day] > 0:
+            break
+        current_hour = hours_in_day - hours_to_cover[day]
+        hours_to_work = hours_can_work(officer, day, current_hour, max_hours)
+        #hours_to_work = hours_can_work(officer, day, current_hour, consecutive_before_overtime)
+        if hours_to_work > 0 & hours_to_work <= hours_to_cover[day]:
+            for hour in range(hours_to_work):
+                hours_worked[officer][day].append(current_hour + hour + 1)
+            most_rec_consecutive[officer] = hours_to_work
+            hours_to_cover[day] = hours_to_cover[day] - hours_to_work
+            # greedy part is here.  start over once an assignment is made
+            break
+        if hours_to_work > 0 & hours_to_work > hours_to_cover[day]:
+            for hour in range(hours_to_cover[day]):
+                hours_worked[officer][day].append(current_hour + hour + 1)
+            most_rec_consecutive[officer] = hours_to_cover[day]
+            hours_to_work = hours_to_work - hours_to_cover[day]
+            hours_to_cover[day] = 0
+            if day != '6_sun':
+                next_day = days_to_cover[days_to_cover.index(day) + 1]
+                for hour in range(hours_to_work):
+                    hours_worked[officer][next_day].append(hour + 1)
+                most_rec_consecutive[officer] = most_rec_consecutive[officer] + hours_to_work
+                hours_to_cover[next_day] = hours_to_cover[next_day] - hours_to_work
+            # greedy part is here.  start over once an assignment is made
+            break
+
+# cycle through 'cases' from most desirable to least desirable
 for day in days_to_cover:
     while hours_to_cover[day] > 0:
         # greedy part is here.  keep assigning the first available officer.
-        for officer in peronnel:
-            current_hour = hours_in_day - hours_to_cover[day]
-            hours_to_work = hours_can_work_before_overtime(officer, day, current_hour, most_rec_consecutive)
-            if hours_to_work > 0 & hours_to_work <= hours_to_cover[day]:
-                for hour in range(hours_to_work):
-                    hours_worked[officer][day].append(current_hour + hour + 1)
-                most_rec_consecutive[officer] = hours_to_work
-                hours_to_cover[day] = hours_to_cover[day] - hours_to_work
-                # greedy part is here.  start over once an assignment is made
-                break
-            if hours_to_work > 0 & hours_to_work > hours_to_cover[day]:
-                for hour in range(hours_to_cover[day]):
-                    hours_worked[officer][day].append(current_hour + hour + 1)
-                most_rec_consecutive[officer] = hours_to_cover[day]
-                hours_to_work = hours_to_work - hours_to_cover[day]
-                hours_to_cover[day] = 0
-                if day != '6_sun':
-                    next_day = days_to_cover[days_to_cover.index(day) + 1]
-                    for hour in range(hours_to_work):
-                        hours_worked[officer][next_day].append(hour + 1)
-                    most_rec_consecutive[officer] = most_rec_consecutive[officer] + hours_to_work
-                    hours_to_cover[next_day] = hours_to_cover[next_day] - hours_to_work
-                # greedy part is here.  start over once an assignment is made
-                break
+        start_sched = copy.deepcopy(hours_worked)
+        assign_hours(day, consecutive_before_overtime)
+        if hours_worked == start_sched:
+            assign_hours(day, max_consecutive)
+        # if hours_worked == start_sched:
+        #     included.append(peronnel[min_personnel])
+        #     min_personnel = min_personnel + 1
+
+day = '0_mon'
+while hours_to_cover[day] > 0:
+    # greedy part is here.  keep assigning the first available officer.
+    start_sched = copy.deepcopy(hours_worked)
+    assign_hours(day, consecutive_before_overtime)
+    if hours_worked == start_sched:
+        assign_hours(day, max_consecutive)
+    # if hours_worked == start_sched:
+    #     included.append(peronnel[min_personnel])
+    #     min_personnel = min_personnel + 1
 
 results_df = pd.DataFrame(hours_worked)
 
-results_df[['officer6', 'officer5']]
+results_df[['officer4', 'officer5', 'officer6']]
 
 # testing BFS
 breadth_first_search('NYC', 'Los Angeles')
