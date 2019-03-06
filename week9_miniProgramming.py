@@ -11,17 +11,17 @@ import seaborn as sns
 
 # GENERATES TEST DATA
 test_case_sizes = []
-for i in range(10):
-    test_case_sizes.append(100*i + 10)
+for i in range(9):
+    test_case_sizes.append(3*i + 4)
 
 weights = {}
 values = {}
 bag_weight_capacities = []
 for size in test_case_sizes:
-    random.seed(size)
+    random.seed(test_case_sizes[-1])
     weights['test_case_size_' + str(size)] = [random.randint(0, 30) for i in range(size)]
     values['test_case_size_' + str(size)] = [round(random.uniform(0.00, 300.00),2) for i in range(size)]
-    bag_weight_capacities.append(random.randint(5,5*size))
+    bag_weight_capacities.append(random.randint(10,10*size))
 
 cases = []
 for test_case_num in range(len(test_case_sizes)):
@@ -63,12 +63,13 @@ def greedy_knapsack(items, weight_available):
     return bag
 
 # testing greedy method
-single_test_case = copy.deepcopy(cases['case_1'])
-result_bag = greedy_knapsack(single_test_case['items'],single_test_case['bag_weight_capacity'] )
-cases['case_1']['bag_weight_capacity']
+single_test_case = copy.deepcopy(cases[0])
+result_bag = greedy_knapsack(single_test_case['items'],single_test_case['bag_weight_capacity'])
+len(cases[0]['items'])
+len(result_bag)
+cases[0]['bag_weight_capacity']
 sum(x['weight'] for x in result_bag)
 sum(x['value'] for x in result_bag)
-len(result_bag)
 
 # recursive method
 def recursive_knapsack(items, weight_available):
@@ -82,15 +83,13 @@ def recursive_knapsack(items, weight_available):
         return max([recursive_knapsack(items[:-1], weight_available), temp + [items[-1]]], key=lambda m: sum([x['value'] for x in m]), default = [])
 
 # testing recursive method
-single_test_case = copy.deepcopy(cases['case_1'])
-result_bag = greedy_knapsack(single_test_case['items'],single_test_case['bag_weight_capacity'])
-cases['case_1']['bag_weight_capacity']
+single_test_case = copy.deepcopy(cases[0])
+result_bag = recursive_knapsack(single_test_case['items'],single_test_case['bag_weight_capacity'])
+len(cases[0]['items'])
+len(result_bag)
+cases[0]['bag_weight_capacity']
 sum(x['weight'] for x in result_bag)
 sum(x['value'] for x in result_bag)
-len(result_bag)
-
-items = single_test_case['items']
-weight_capacity = single_test_case['bag_weight_capacity']
 
 # dynamic programming method
 def dp_knapsack(items, weight_capacity):
@@ -107,41 +106,43 @@ def dp_knapsack(items, weight_capacity):
         for j in range(1, cols):
             if items[i-1]['weight'] <= j:
                 calcs_matrix[i][j] = max(calcs_matrix[i-1][j], calcs_matrix[i-1][j-items[i-1]['weight']] + [items[i-1]]\
-                    , key=lambda m: sum([x['value'] for x in m]), default = [])
+                    , key=lambda m: sum([x['value'] for x in m]))
             else:
                 calcs_matrix[i][j] = calcs_matrix[i-1][j]
     
-    return calcs_matrix
+    return calcs_matrix[len(items)][weight_capacity]
 
 # testing dynamic programming
-single_test_case = copy.deepcopy(cases['case_1'])
-result_bag = greedy_knapsack(single_test_case['items'],single_test_case['bag_weight_capacity'] )
-cases['case_1']['bag_weight_capacity']
+single_test_case = copy.deepcopy(cases[0])
+result_bag = dp_knapsack(single_test_case['items'],single_test_case['bag_weight_capacity'])
+len(cases[0]['items'])
+len(result_bag)
+cases[0]['bag_weight_capacity']
 sum(x['weight'] for x in result_bag)
 sum(x['value'] for x in result_bag)
-len(result_bag)
 
 
 # TIME TESTING
-def dp_showcase_time_testing(function_name, method_name, items, weight_capacity):
-  start = time.perf_counter()
-  items_to_take = function_name(items, weight_capacity)
-  end = time.perf_counter()
-  function_time = (end - start)*1000
-  results.append({'Number of Items to Evaluate': len(items)\
-                    ,'Method':method_name\
-                    ,'Value of Items Taken':sum([items[x]['value'] for x in items_to_take])\
-                    ,'Function Time':function_time})
+def dp_showcase_time_testing(function_name, method_name, cases):
+    for case_num in range(len(cases)):
+        items = copy.deepcopy(cases[case_num]['items'])
+        weight_capacity = copy.deepcopy(cases[case_num]['bag_weight_capacity'])
+        start = time.perf_counter()
+        items_to_take = function_name(items, weight_capacity)
+        end = time.perf_counter()
+        function_time = (end - start)*1000
+        results.append({'Number of Items to Evaluate': len(cases[case_num]['items'])\
+                        ,'Method':method_name\
+                        ,'Value of Items Taken':sum([x['value'] for x in items_to_take])\
+                        ,'Function Time':function_time})
 
 # instantiates results data structure
 results = []
 
 # runs time testing
-for key in cases:
-    case = cases[key]
-    dp_showcase_time_testing(greedy_knapsack, 'Greedy', case['items'], case['bag_weight_capacity'])
-    dp_showcase_time_testing(recursive_knapsack, 'Recursive')
-    dp_showcase_time_testing(dp_knapsack, 'Dynamic Programming')
+dp_showcase_time_testing(greedy_knapsack, 'Greedy', cases)
+dp_showcase_time_testing(recursive_knapsack, 'Recursive', cases)
+dp_showcase_time_testing(dp_knapsack, 'Dynamic Programming', cases)
 
 # organizes results into pandas dataframe for easier exploration
 results_df = pd.DataFrame(results)
