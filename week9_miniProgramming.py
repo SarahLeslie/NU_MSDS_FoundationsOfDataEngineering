@@ -16,15 +16,18 @@ for i in range(10):
 
 weights = {}
 values = {}
+bag_weight_capacities = []
 for size in test_case_sizes:
     random.seed(size)
     weights['test_case_size_' + str(size)] = [round(random.uniform(0.00, 30.00),2) for i in range(size)]
     values['test_case_size_' + str(size)] = [round(random.uniform(0.00, 300.00),2) for i in range(size)]
+    bag_weight_capacities.append(random.randint(5,5*size))
 
 cases = {}
 for test_case in range(len(test_case_sizes)):
     cases['case_' + str(test_case + 1)] = {}
     cases['case_' + str(test_case + 1)]['size'] = test_case_sizes[test_case]
+    cases['case_' + str(test_case + 1)]['bag_weight_capacity'] = bag_weight_capacities[test_case]
     cases['case_' + str(test_case + 1)]['items'] = []
     for item_num in range(test_case_sizes[test_case]):
         cases['case_' + str(test_case + 1)]['items'].append({})
@@ -38,6 +41,8 @@ cases['case_2']['size']
 type(cases['case_2']['items'])
 len(cases['case_2']['items'])
 cases['case_2']['items'][3]
+cases['case_2']['bag_weight_capacity']
+sum(cases['case_2']['items'][x]['weight'] for x in range(len(cases['case_2']['items'])))
 # all set!
 
 
