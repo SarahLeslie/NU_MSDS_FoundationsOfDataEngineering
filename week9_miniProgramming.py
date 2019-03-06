@@ -2,17 +2,42 @@
 
 # IMPORTS REQUIRED PACKAGES
 import random
+import json
 import time
-# import copy
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 # GENERATES TEST DATA
-test_items = None
+test_case_sizes = []
+for i in range(10):
+    test_case_sizes.append(100*i + 10)
 
+weights = {}
+values = {}
+for size in test_case_sizes:
+    random.seed(size)
+    weights['test_case_size_' + str(size)] = [round(random.uniform(0.00, 30.00),2) for i in range(size)]
+    values['test_case_size_' + str(size)] = [round(random.uniform(0.00, 300.00),2) for i in range(size)]
+
+cases = {}
+for test_case in range(len(test_case_sizes)):
+    cases['case_' + str(test_case + 1)] = {}
+    cases['case_' + str(test_case + 1)]['size'] = test_case_sizes[test_case]
+    cases['case_' + str(test_case + 1)]['items'] = []
+    for item_num in range(test_case_sizes[test_case]):
+        cases['case_' + str(test_case + 1)]['items'].append({})
+        cases['case_' + str(test_case + 1)]['items'][item_num]['weight'] = weights['test_case_size_' + str(test_case_sizes[test_case])][item_num]
+        cases['case_' + str(test_case + 1)]['items'][item_num]['value'] = values['test_case_size_' + str(test_case_sizes[test_case])][item_num]
+        
 # checking test data
-
+cases.keys()
+cases['case_2'].keys()
+cases['case_2']['size']
+type(cases['case_2']['items'])
+len(cases['case_2']['items'])
+cases['case_2']['items'][3]
 # all set!
 
 
