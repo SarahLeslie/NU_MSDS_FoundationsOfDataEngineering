@@ -11,14 +11,14 @@ import seaborn as sns
 
 # GENERATES TEST DATA
 test_case_sizes = []
-for i in range(9):
-    test_case_sizes.append(3*i + 4)
+for i in range(4,30):
+    test_case_sizes.append(i)
 
 weights = {}
 values = {}
 bag_weight_capacities = []
 for size in test_case_sizes:
-    random.seed(test_case_sizes[-1])
+    random.seed(2)
     weights['test_case_size_' + str(size)] = [random.randint(0, 30) for i in range(size)]
     values['test_case_size_' + str(size)] = [round(random.uniform(0.00, 300.00),2) for i in range(size)]
     bag_weight_capacities.append(random.randint(10,10*size))
@@ -141,23 +141,36 @@ results = []
 
 # runs time testing
 dp_showcase_time_testing(greedy_knapsack, 'Greedy', cases)
-dp_showcase_time_testing(recursive_knapsack, 'Recursive', cases)
 dp_showcase_time_testing(dp_knapsack, 'Dynamic Programming', cases)
+dp_showcase_time_testing(recursive_knapsack, 'Recursive', cases)
 
 # organizes results into pandas dataframe for easier exploration
 results_df = pd.DataFrame(results)
 
 
 # RESULTS ANALYSIS
+# Time requirements
+sns.set(style="darkgrid")
+sns.catplot(x="Number of Items to Evaluate", y="Function Time"
+            , hue = "Method", data=results_df, jitter = True)
+plt.show()
 
-# results_melted = pd.melt(results_df, id_vars='Method Used'
-#                         , var_name="Result Type", value_vars=["Number of Stops", "Total Driving Time"]
-#                         , value_name="Values")
+sns.set(style="darkgrid")
+sns.catplot(x="Number of Items to Evaluate", y="Function Time"
+            , hue = "Method", data=results_df.loc[results_df['Number of Items to Evaluate']<26], jitter = True)
+plt.show()
 
-# sns.set(style="darkgrid")
-# ax = sns.barplot(x="Result Type", y="Values", hue = "Method Used", data=results_melted)
-# for col in ax.patches:
-#     height = col.get_height()
-#     ax.text(col.get_x()+col.get_width()/2., height + 1.5,
-#             int(height), ha="center") 
-# plt.show()
+sns.set(style="darkgrid")
+sns.catplot(x="Number of Items to Evaluate", y="Function Time"
+            , hue = "Method", data=results_df.loc[results_df['Method'] != 'Recursive'], jitter = True)
+plt.show()
+
+# Accuracy
+temp_acccuracy_df = results_df.loc[results_df['Method'] == 'Dynamic Programming', ['Number of Items to Evaluate','Value of Items Taken']]
+new_df = pd.merge(results_df, temp_acccuracy_df, how='left', on = 'Number of Items to Evaluate', suffixes=('','_Full_Accurate_Value'))
+new_df['Bag Value Accuracy'] = new_df['Value of Items Taken']/new_df['Value of Items Taken_Full_Accurate_Value']
+
+sns.set(style="darkgrid")
+sns.catplot(x="Number of Items to Evaluate", y="Bag Value Accuracy"
+            , hue = "Method", data=new_df, jitter = True)
+plt.show()
