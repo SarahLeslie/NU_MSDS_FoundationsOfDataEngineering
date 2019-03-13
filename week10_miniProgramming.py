@@ -1,258 +1,177 @@
-# The image below shows possible routes to take on a road trip.  RoadTrip_NYC_to_L.A.JPG
-# The nodes represent city names and vertices are the assumed hours the drive would take.
-# First, use the breadth-first algorithm to find the quickest way to get to L.A from NYC 
-# and calculate the time that it will take to get to L.A. from NYC using the breadth first algorithm 
-# (use the weights assigned to the routes even though breadth-first works on unweighted edges 
-# but you should calculate on the side).
-# Print the route e.g. NYC -> DC -> ATL etc -> L.A.
-# Then use Dijkstra's algorithm to find the most optimal route to get to L.A from NYC, 
-# capture the time that it will take to get to L.A (use the weights in the algorithm assigned to the routes)
-# Print the route e.g. NYC -> DC -> ATL etc -> L.A.
-# Compare time of Breadth-first algorithm with Dijkstra's algorithm in terms of trip time and stops.
-# Use Python (matplotlib or Seaborn) or JavaScript (D3) visualization tools to illustrate algorithm performance.
-
 # IMPORTS REQUIRED PACKAGES
-import random
-import time
+import numpy as np
+from sklearn import datasets
 import pandas as pd
+from heapq import nsmallest
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# GENERATES THE GRAPH
-graph = {}
 
-# the nodes
-nodes = ['NYC', 'DC', 'Atlanta', 'New Orleans', 'Dallas'
-        , 'Indianapolis', 'Kansas City', 'Denver'
-        , 'Pittsburg', 'Cincinnati', 'St Louis', 'Oklahoma City'
-        , 'Salt Lake City', 'Albuquerque', 'Phoenix', 'Las Vegas', 'San Diego', 'Los Angeles']
+# LOADS & VIEWS THE DATA
+iris = datasets.load_iris()
+iris_df = pd.DataFrame(data= np.c_[iris['data'], iris['target']],
+                     columns= iris['feature_names'] + ['target'])
+iris_df
+iris_df.groupby('target').count()
 
-# instatiate the nodes in the graph
-for node in nodes:
-    graph[node] = {}
+plt.figure()
+plt.scatter(iris_df['sepal length (cm)'], iris_df['sepal width (cm)'], c=iris_df['target'])
+plt.xlabel('Sepal length')
+plt.ylabel('Sepal width')
+plt.xticks(())
+plt.yticks(())
+plt.show()
 
-# create the driving hours vertices for each node
-# NYC
-graph["NYC"]["DC"] = 2
-graph["NYC"]["Indianapolis"] = 11
-graph["NYC"]["Pittsburg"] = 7
+plt.figure()
+plt.scatter(iris_df['petal length (cm)'], iris_df['petal width (cm)'], c=iris_df['target'])
+plt.xlabel('Petal length')
+plt.ylabel('Petal width')
+plt.xticks(())
+plt.yticks(())
+plt.show()
 
-# DC
-graph["DC"]["Atlanta"] = 2
-
-# Atlanta
-graph["Atlanta"]["New Orleans"] = 2
-
-# New Orleans
-graph["New Orleans"]["Dallas"] = 2
-
-# Dallas
-graph["Dallas"]["Albuquerque"] = 2
-
-# Indianapolis
-graph["Indianapolis"]["Kansas City"] = 8
-
-# Kansas City
-graph["Kansas City"]["Denver"] = 7
-
-# Denver
-graph["Denver"]["Salt Lake City"] = 6
-
-# Pittsburg
-graph["Pittsburg"]["Cincinnati"] = 6
-
-# Cincinnati
-graph["Cincinnati"]["St Louis"] = 8
-
-# St Louis
-graph["St Louis"]["Oklahoma City"] = 7
-
-# Oklahoma City
-graph["Oklahoma City"]["Albuquerque"] = 9
-
-# Salt Lake City
-graph["Salt Lake City"]["Las Vegas"] = 9
-
-# Albuquerque
-graph["Albuquerque"]["Phoenix"] = 2
-
-# Phoenix
-graph["Phoenix"]["Las Vegas"] = 2
-graph["Phoenix"]["San Diego"] = 5
-
-# Las Vegas
-graph["Las Vegas"]["San Diego"] = 2
-graph["Las Vegas"]["Los Angeles"] = 5
-
-# San Diego
-graph["San Diego"]["Los Angeles"] = 2
-
-graph.keys()
-
-# checking
-for node in graph.keys():
-    for connection in graph[node].keys():
-        print(node, " to ", connection, " is ", graph[node][connection], " hours")
+iris_df["target"] = iris_df["target"].astype('category')
+sns.scatterplot(iris_df['sepal length (cm)'], iris_df['sepal width (cm)'], hue=iris_df['target'])
+plt.show()
+sns.scatterplot(iris_df['petal length (cm)'], iris_df['petal width (cm)'], hue=iris_df['target'])
+plt.show()
 # all set!
 
+#quick fix
+iris_df["target"] = iris_df["target"].astype('int_')
 
-# DEFINES GRAPH SEARCH FUNCTIONS
-# Breadth-First Search
-def breadth_first_search(starting_city, ending_city):
-    # instantiates the data structures to keep tracking of which nodes we have to search...
-    # and which we've already searched for
-    searched = [starting_city]
-    to_search = []
-    # instantiates separator string to print formatted path
-    seperator = ' -> '
-    
-    # gets neighbor nodes from starting point
-    neighbors = graph[starting_city].keys()
-    for neighbor in neighbors:
-        # for each neighbor, create path from starting point to neighbor
-        new_path = list([starting_city])
-        new_path.append(neighbor)
-        # if we found the ending point, calculate the driving time based on the path...
-        # and return the path, driving time, and number of stops
-        if neighbor == ending_city:
-            driving_time = 0 
-            for first in range(len(new_path)-1) :
-                driving_time += graph[new_path[first]][new_path[first+1]]
-            formatted_path = seperator.join(new_path)
-            return(formatted_path + " takes " + str(driving_time) + " hours in " + str(len(new_path)-1) + " stops.")
-        else:
-            # else, append the full path to the search queue to continue searching
-            to_search.append(new_path)
-    
-    # while stilll paths to search
-    while to_search:
-        # get the next path
-        path = to_search.pop(0)
-        # find the last city in that path
-        city = path[-1]
-        # if the city's neighbors have yet to be checked
-        if city not in searched:
-            # get the city's neighbors
-            neighbors = graph[city].keys()
-            for neighbor in neighbors:
-                # for each neighbor, extend the current path to that neighbor
-                new_path = list(path)
-                new_path.append(neighbor)
-                # if we found the ending point, calculate the driving time based on the path...
-                # and return the path, driving time, and number of stops
-                if neighbor == ending_city:
-                    driving_time = 0 
-                    for first in range(len(new_path)-1) :
-                        driving_time += graph[new_path[first]][new_path[first+1]]
-                    formatted_path = seperator.join(new_path)
-                    return formatted_path, driving_time, (len(new_path)-1)
-                    #return(formatted_path + " takes " + str(driving_time) + " hours in " + str(len(new_path)-1) + " stops.")
-                else :
-                    # else, append the full path to the search queue to continue searching
-                    to_search.append(new_path)
-                    # and add that city to 'searched' to indicated that its neighbors have been checked
-                    searched.append(city)
-    return False
+# DEFINES KNN FUNCTIONS
+def sarahs_dist_formula(rec1, rec2):
+    diff = rec1 - rec2
+    squared = diff**2
+    summed = sum(squared)
+    return np.sqrt(summed)
 
-# testing BFS
-breadth_first_search('NYC', 'Los Angeles')
+# testing
+sarahs_dist_formula(iris_df.iloc[1,:4], iris_df.iloc[1,:4])
 
-# Dijkstra's Algorithm - lowest cost function
-def find_lowest_cost_node(costs, processed):
-    lowest_cost = float("inf")
-    lowest_cost_node = None
-    # Go through each node.
-    for node in costs:
-        cost = costs[node]
-        # If it's the lowest cost so far and hasn't been processed yet...
-        if cost < lowest_cost and node not in processed:
-            # ... set it as the new lowest-cost node.
-            lowest_cost = cost
-            lowest_cost_node = node
-    return lowest_cost_node, lowest_cost
+def sarahs_dist_dict(predictors):
+    dist_dict = {}
+    for record in predictors.index:
+        dist_dict[record] = {}
+    for record1 in predictors.index:
+        for record2 in predictors[record1+1:].index:
+            if record1 == record2:
+                dist_dict[record1][record2] = 0
+            else:
+                dist = sarahs_dist_formula(predictors.iloc[record1], predictors.iloc[record2])
+                dist_dict[record1][record2] = dist
+                dist_dict[record2][record1] = dist
+    return dist_dict
 
-# Rest of Dijkstra's Algorithm
-def dijkstras(starting_city, ending_city):
-    # instantiates the costs and parents tables
-    costs = {}
-    parents = {}
+# testing
+sarahs_dist_dict(iris_df.iloc[:,:4])
 
-    # adds infinity for all nodes' costs...
-    # and adds 'None's for all nodes' parents
-    infinity = float("inf")
-    for no in graph.keys():
-        costs[no] = infinity
-        parents[no] = None
+def sarahs_knn_single_prediction_v1(records_dict, target, k):
+    indeces = nsmallest(k, records_dict, key = records_dict.get)
+    class_counts = target[indeces].value_counts()
+    if len(class_counts[class_counts==class_counts.max()]) > 1:
+        new_guess = sarahs_knn_single_prediction_v1(records_dict, target, k+1) #ooo recursion!
+        return new_guess
+    else:
+        return class_counts.idxmax()
 
-    # adds costs and parents for starting point's neighbor nodes
-    for connection in graph[starting_city].keys():
-        costs[connection] = graph[starting_city][connection]
-        parents[connection] = starting_city
-    
-    # instantiates list of already processed nodes
-    processed = [starting_city]
+def sarahs_knn_single_prediction_v2(records_dict, target, k):
+    indeces = nsmallest(k, records_dict, key = records_dict.get)
+    class_counts = target[indeces].value_counts()
+    if len(class_counts[class_counts==class_counts.max()]) > 1:
+        val_class_count = class_counts[class_counts==class_counts.max()]
+        filtered_targs = target[indeces][target[indeces].isin(list(val_class_count.index))]
+        filtered_indeces = list(filtered_targs.index)
+        dists = {ind:records_dict[ind] for ind in filtered_indeces}
+        dists = pd.DataFrame.from_dict(dists, orient='index', columns = ['dist_value'])
+        tot = dists.join(target[indeces])
+        tot_summed = tot.groupby('target').sum()
+        tot_summed_min_dist = min(tot_summed['dist_value'])
+        new_guess = tot_summed[tot_summed['dist_value'] == tot_summed_min_dist].index[0]
+        return new_guess
+    else:
+        return class_counts.idxmax()
 
-    # Find the lowest-cost node that you haven't processed yet.
-    node, cost = find_lowest_cost_node(costs, processed)
-    # If you've processed all the nodes, the 'lowest cost node' will be None
-    while node is not None:
-        # Go through all the neighbors of this node.
-        neighbors = graph[node]
-        for n in neighbors.keys():
-            new_cost = cost + neighbors[n]
-            # If it's cheaper to get to this neighbor by going through this node...
-            if new_cost < costs[n]:
-                # ... update the cost for this node.
-                costs[n] = new_cost
-                # This node becomes the new parent for this neighbor.
-                parents[n] = node
-        # Mark the node as processed.
-        processed.append(node)
-        # Find the next node to process, and loop.
-        node, cost = find_lowest_cost_node(costs, processed)
-    
-    # constructs outputs
-    separator = " -> "
-    path = []
-    current = ending_city
-    while parents[current] is not None:
-        path = [current] +  path
-        current = parents[current]
-    if path:
-        path = [current] +  path
-        formatted_path = separator.join(path)
-        #return(formatted_path + " takes " + str(costs[ending_city]) + " hours in " + str(len(path)-1) + " steps.")
-        return formatted_path, costs[ending_city], (len(path)-1)
-    else :
-        return None
+target = iris_df.loc[:, 'target']
+k = 4
+i = 133
+records_dict = dist_dict[i]
 
-# testing Dijkstra
-dijkstras('NYC', 'Los Angeles')
+# testing
+sarahs_knn_single_prediction_v1(records_dict, target, k)
+sarahs_knn_single_prediction_v2(records_dict, target, k)
+
+def sarahs_knn_v1(predictors, outcome, k):
+    dist_dict = sarahs_dist_dict(predictors)
+    predictions = []
+    for record in dist_dict.keys():
+        predictions.append(sarahs_knn_single_prediction_v1(dist_dict[record], outcome, k))
+    return predictions
+
+def sarahs_knn_v2(predictors, outcome, k):
+    dist_dict = sarahs_dist_dict(predictors)
+    predictions = []
+    for record in dist_dict.keys():
+        predictions.append(sarahs_knn_single_prediction_v2(dist_dict[record], outcome, k))
+    return predictions
+
+# testing
+v1_results = sarahs_knn_v1(iris_df.iloc[:,:4], iris_df['target'], 4)
+v2_results = sarahs_knn_v2(iris_df.iloc[:,:4], iris_df['target'], 4)
 
 # RESULTS CAPTURE
-# instantiates list to capture time test results
-results = []
-bfs = breadth_first_search('NYC', 'Los Angeles')
-d = dijkstras('NYC', 'Los Angeles')
-results.append({'Method Used':'Breadth-First Search'
-                ,'Path':bfs[0]
-                ,'Total Driving Time':bfs[1]
-                ,'Number of Stops':bfs[2]})
-results.append({'Method Used':'Dijkstra\'s Algorithm'
-                ,'Path':d[0]
-                ,'Total Driving Time':d[1]
-                ,'Number of Stops':d[2]})
+for k_val in range(1,101):
+    v1_string = 'v1_' + 'k_is_' + str(k_val)
+    v2_string = 'v2_' + 'k_is_' + str(k_val)
+    iris_df[v1_string] = sarahs_knn_v1(iris_df.iloc[:,:4], iris_df['target'], k_val)
+    iris_df[v2_string] = sarahs_knn_v2(iris_df.iloc[:,:4], iris_df['target'], k_val)
 
-# organizes results into pandas dataframe for easier exploration
-results_df = pd.DataFrame(results)
-results_melted = pd.melt(results_df, id_vars='Method Used'
-                        , var_name="Result Type", value_vars=["Number of Stops", "Total Driving Time"]
-                        , value_name="Values")
+iris_df
+
+for k_val in range(1,101):
+    v1_string = 'v1_' + 'k_is_' + str(k_val)
+    v2_string = 'v2_' + 'k_is_' + str(k_val)
+    iris_df[v1_string] = iris_df[v1_string] == iris_df['target']
+    iris_df[v2_string] = iris_df[v2_string] == iris_df['target']
+
+iris_df
+
+df_len = len(iris_df)
+results_dict = {}
+for k_val in range(1,101):
+    v1_string = 'v1_' + 'k_is_' + str(k_val)
+    v2_string = 'v2_' + 'k_is_' + str(k_val)
+    results_dict[k_val] = [k_val, sum(iris_df[v1_string])/df_len, sum(iris_df[v2_string])/df_len]
+
+results_dict
+
+results_df = pd.DataFrame.from_dict(results_dict, orient='index', columns=['k_value', 'V1','V2'])
+
+# RESULTS ANALYSIS
+results_melted = pd.melt(results_df, id_vars='k_value', var_name="Version", value_vars=['V1','V2'], value_name="Accuracy")
 
 sns.set(style="darkgrid")
-ax = sns.barplot(x="Result Type", y="Values", hue = "Method Used", data=results_melted)
-for col in ax.patches:
-    height = col.get_height()
-    ax.text(col.get_x()+col.get_width()/2., height + 1.5,
-            int(height), ha="center") 
+sns.lineplot(x='k_value', y='Accuracy', hue = 'Version', data = results_melted)
 plt.show()
+
+sns.set(style="darkgrid")
+sns.lineplot(x='k_value', y='Accuracy', hue = 'Version', data = results_melted[results_melted['k_value']<=90])
+plt.show()
+
+sns.set(style="darkgrid")
+sns.lineplot(x='k_value', y='Accuracy', hue = 'Version', data = results_melted[results_melted['k_value']<=40])
+plt.show()
+
+sns.set(style="darkgrid")
+sns.lineplot(x='k_value', y='Accuracy', hue = 'Version', data = results_melted[(results_melted['k_value']>=15) & (results_melted['k_value']<=25)])
+plt.show()
+
+
+iris_df["target"] = iris_df["target"].astype('category')
+best_v_and_k = 'v1_' + 'k_is_' + str(19)
+sns.scatterplot(data=iris_df, x='sepal length (cm)', y='sepal width (cm)', hue=best_v_and_k, style='target')
+plt.show()
+sns.scatterplot(data=iris_df, x='petal length (cm)', y='petal width (cm)', hue=best_v_and_k, style='target')
+plt.show()
+# all set!
